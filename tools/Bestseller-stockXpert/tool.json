@@ -1,0 +1,36 @@
+{
+  "id": "stockxpert",
+  "order": 12,
+  "name": "BESTSELLER StockXpert",
+  "description": "BESTSELLER store audit variance report: validates source files and builds the working and exceptions.",
+  "category": "inventory",
+  "icon": "box",
+  "version": "1.0",
+  "badge": "new",
+  "popularity": 82,
+  "tags": [
+    "bestseller",
+    "variance",
+    "stn",
+    "omni",
+    "negative inventory",
+    "exceptions"
+  ],
+  "capabilities": [
+    "Source file validation",
+    "Variance report",
+    "Detailed working",
+    "Exception listing"
+  ],
+  "bestFor": [
+    "BESTSELLER store audits",
+    "Explaining stock variances"
+  ],
+  "stages": [
+    "reconcile"
+  ],
+  "createdDate": "2026-09-27",
+  "updatedDate": "2026-09-27",
+  "featured": false,
+  "status": "active"
+}

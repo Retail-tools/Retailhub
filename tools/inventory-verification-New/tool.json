@@ -1,0 +1,38 @@
+{
+  "id": "inventory-verification",
+  "order": 1,
+  "name": "Inventory Verification",
+  "description": "Barcode-level stock verification with quantity validation and reconciliation support.",
+  "category": "inventory",
+  "icon": "barcode",
+  "version": "2.0",
+  "featured": true,
+  "badge": "popular",
+  "popularity": 98,
+  "tags": [
+    "barcode",
+    "stock",
+    "variance",
+    "verify",
+    "count",
+    "sku"
+  ],
+  "capabilities": [
+    "Barcode-level matching",
+    "Quantity validation",
+    "Variance reconciliation",
+    "Exception listing"
+  ],
+  "bestFor": [
+    "Physical stock counts",
+    "Store and warehouse audits",
+    "Book-vs-physical reconciliation"
+  ],
+  "stages": [
+    "scan",
+    "reconcile"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "status": "active"
+}

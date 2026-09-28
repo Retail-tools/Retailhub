@@ -1,0 +1,33 @@
+{
+  "id": "invoice-receivable",
+  "order": 3,
+  "name": "Invoice Receivable Calculator",
+  "description": "Work out invoice receivables, GST, TDS and outstanding payment values.",
+  "category": "finance",
+  "icon": "invoice",
+  "version": "1.0",
+  "popularity": 80,
+  "tags": [
+    "invoice",
+    "tds",
+    "receivable",
+    "outstanding",
+    "payment"
+  ],
+  "capabilities": [
+    "GST and TDS split",
+    "Net receivable value",
+    "Outstanding balance"
+  ],
+  "bestFor": [
+    "Raising client invoices",
+    "Checking amounts to be received"
+  ],
+  "stages": [
+    "reconcile"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "featured": false,
+  "status": "active"
+}

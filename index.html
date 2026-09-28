@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit HUB Pro | Digital Command Center for Retail Operations</title>
+<meta name="description" content="Audit HUB Pro: one platform for inventory verification, retail audits, analytics, reporting, finance, GST and field operations.">
+<meta name="author" content="Vicky Shaw">
+<meta name="theme-color" content="#0a1428">
+<link rel="icon" href="assets/images/favicon.png">
+<script>(function(){try{var s=localStorage.getItem("ahp-theme");var t=s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t)}catch(e){document.documentElement.setAttribute("data-theme","light")}})()</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="assets/css/hub.css">
+</head>
+<body>
+<a class="skip" href="#tools">Skip to tools</a>
+
+<header class="nav"><div class="wrap nav-in">
+  <a class="brand" href="#top" aria-label="Audit HUB Pro home"><img src="assets/images/logo-mark.png" alt=""><span>Audit HUB Pro<small>Retail Operations Toolkit</small></span></a>
+  <nav class="links" id="links" aria-label="Main"><a href="#tools">Tools</a><a href="#categories">Categories</a><a href="#workflow">Workflows</a><a href="#about">About</a></nav>
+  <div class="nav-r">
+    <button class="icon-btn" id="openSearch" aria-label="Search tools (Ctrl+K)"><svg class="i" viewBox="0 0 24 24" data-i="search"></svg></button>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode"><svg class="i ic-moon" viewBox="0 0 24 24" data-i="moon"></svg><svg class="i ic-sun" viewBox="0 0 24 24" data-i="sun"></svg></button>
+    <a class="btn pri sm" href="#all">All Tools</a>
+    <button class="icon-btn burger" id="burger" aria-label="Menu" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" data-i="menu"></svg></button>
+  </div>
+</div></header>
+
+<main id="top">
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+    <div class="eyebrow"><span class="pulse"></span>Audit HUB Pro &bull; Retail Operations Platform</div>
+    <h1>Your Digital Command Center for <span class="grad">Retail Operations</span></h1>
+    <p class="lede">One powerful workspace for inventory audits, retail analytics, reporting, finance, GST and field operations.</p>
+    <div class="cta"><a class="btn pri" href="#tools">Explore Tools <svg class="i go" viewBox="0 0 24 24" data-i="arrow"></svg></a><a class="btn" href="#workflow">Open Command Center</a></div>
+    <button class="searchbox" id="heroSearch"><svg class="i" viewBox="0 0 24 24" data-i="search"></svg><span>Search tools, audits, calculators, analytics...</span><kbd>Ctrl K</kbd></button>
+    <div class="trust"><span><i class="pulse" style="display:inline-block;margin-right:6px"></i><b>Live</b> Platform</span><span><b data-count="tools">13</b>+ Tools</span><span><b>Multiple</b> Workflows</span><span><b>Free</b> to Use</span></div>
+  </div>
+  <div class="dash" aria-hidden="true">
+    <div class="scan"></div>
+    <div class="dash-h"><span>Command Center</span><i><b></b><b></b><b></b></i></div>
+    <div class="dash-g">
+      <div class="mc g"><small>Inventory Accuracy</small><strong data-to="97.4" data-dec="1" data-suf="%">0</strong><div class="bar"><i data-w="97"></i></div></div>
+      <div class="mc a"><small>Audit Variance</small><strong data-to="2.6" data-dec="1" data-suf="%">0</strong><div class="bar"><i data-w="26"></i></div></div>
+      <div class="mc b"><small>Scanned Units</small><strong data-to="48250" data-sep="1">0</strong><div class="dots"><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div></div>
+      <div class="mc w4"><small>Analytics</small><svg class="spark" viewBox="0 0 300 50" preserveAspectRatio="none"><path class="fill" d="M0 40C30 34 50 42 80 30S130 12 160 22 220 34 250 14 285 8 300 6V50H0z"/><path d="M0 40C30 34 50 42 80 30S130 12 160 22 220 34 250 14 285 8 300 6"/></svg></div>
+      <div class="mc"><small>Reports</small><strong data-to="128" data-suf="">0</strong></div>
+      <div class="mc w3"><small>GST</small><strong style="font-size:17px">CGST · SGST · IGST</strong><div class="bar"><i data-w="70"></i></div></div>
+      <div class="mc w3"><small>Finance</small><strong style="font-size:17px">Receivables · TDS</strong><div class="bar"><i data-w="55"></i></div></div>
+    </div>
+    <div class="demo-note">Illustrative demo data</div>
+  </div>
+</div></section>
+
+<section style="padding:36px 0"><div class="wrap stats reveal" id="stats"></div></section>
+
+<section class="alt"><div class="wrap reveal">
+  <div class="sh"><div><span class="tag">Start here</span><h2>What do you need to do today?</h2><p>Pick a job and jump straight into the right tool.</p></div></div>
+  <div class="intents" id="intents"></div>
+</div></section>
+
+<section id="power"><div class="wrap reveal">
+  <div class="sh"><div><span class="tag">Featured</span><h2>Power Tools</h2><p>The tools most useful for day-to-day audit and operations.</p></div></div>
+  <div class="grid power" id="powerGrid"></div>
+</div></section>
+
+<section class="alt" id="tools"><div class="wrap">
+  <div class="sh reveal" id="categories"><div><span class="tag">Catalogue</span><h2>All Tools</h2><p id="allSub">Browse every tool by category.</p></div><button class="btn sm" id="favOnly" aria-pressed="false"><svg class="i" viewBox="0 0 24 24" data-i="star"></svg>My Tools</button></div>
+  <div class="cats" id="catBar" role="group" aria-label="Filter by category"></div>
+  <div class="grid" id="all"></div>
+  <div class="empty" id="none" hidden>No tools match. Try another keyword or category.</div>
+</div></section>
+
+<section><div class="wrap reveal cols2">
+  <div><h3>Recently Added</h3><div class="row" id="recentAdded" style="grid-template-columns:1fr"></div></div>
+  <div><h3 id="usedTitle">Continue where you left off</h3><div class="row" id="recentUsed" style="grid-template-columns:1fr"></div></div>
+</div></section>
+
+<section class="alt" id="workflow"><div class="wrap reveal">
+  <div class="sh"><div><span class="tag">Workflow</span><h2>From Physical Stock to Executive Insight</h2><p>Every stage of an audit has a tool built for it.</p></div></div>
+  <div class="flow" id="flow"></div>
+</div></section>
+
+<section><div class="wrap reveal">
+  <div class="sh"><div><span class="tag">Why Audit HUB Pro</span><h2>Built for real audit days</h2></div></div>
+  <div class="benefits">
+    <div class="benefit"><div class="ico"><svg class="i" viewBox="0 0 24 24" data-i="layers"></svg></div><b>One workspace</b><span>Inventory, audit, finance and GST tools in one place. No hunting for links.</span></div>
+    <div class="benefit"><div class="ico"><svg class="i" viewBox="0 0 24 24" data-i="scan"></svg></div><b>Runs in your browser</b><span>No login and no install. Tool data stays on your device.</span></div>
+    <div class="benefit"><div class="ico"><svg class="i" viewBox="0 0 24 24" data-i="report"></svg></div><b>Audit to report</b><span>Move from scan files to dashboards and branded PPT reports.</span></div>
+    <div class="benefit"><div class="ico"><svg class="i" viewBox="0 0 24 24" data-i="star"></svg></div><b>Made for you</b><span>Favourites and recently used tools are remembered locally.</span></div>
+  </div>
+</div></section>
+
+<section class="alt" id="about"><div class="wrap reveal about">
+  <div><span class="tag">About</span><h2 style="font-size:clamp(26px,3.4vw,36px);letter-spacing:-.03em;margin:6px 0 12px">Built for the Reality of Retail Operations</h2>
+    <p style="color:var(--muted)">Audit HUB Pro brings the operational utilities audit and retail teams reach for again and again into one workspace, so the work moves faster and stays consistent.</p>
+    <p><b>Designed &amp; Developed by Vicky Shaw</b></p><a class="btn sm" href="about.html">More about the platform</a></div>
+  <div class="areas" id="areas"></div>
+</div></section>
+
+<section><div class="wrap"><div class="final reveal"><h2>One Platform. Every Audit Workflow.</h2><p>Open a tool and get going. No sign-up needed.</p><a class="btn pri" href="#tools">Explore Tools <svg class="i go" viewBox="0 0 24 24" data-i="arrow"></svg></a></div></div></section>
+</main>
+
+<footer><div class="wrap">
+  <div class="fg">
+    <div><a class="brand" href="#top"><img src="assets/images/logo-mark.png" alt=""><span>Audit HUB Pro</span></a><p>A Digital Command Center for Retail Operations, Inventory Audits &amp; Business Intelligence.</p></div>
+    <div><h4>Platform</h4><ul><li><a href="#tools">Tools</a></li><li><a href="#categories">Categories</a></li><li><a href="#workflow">Workflows</a></li><li><a href="#about">About</a></li></ul></div>
+    <div><h4>Audit</h4><ul id="fAudit"></ul></div><div><h4>Analytics</h4><ul id="fAnalytics"></ul></div><div><h4>Utilities</h4><ul id="fUtil"></ul></div>
+  </div>
+  <div class="fb"><span>&copy; <span id="yr">2026</span> Audit HUB Pro</span><span>Designed &amp; Developed by Vicky Shaw</span></div>
+</div></footer>
+
+<div class="ov" id="palette" role="dialog" aria-modal="true" aria-label="Search tools"><div class="dlg">
+  <div class="pin"><svg class="i" viewBox="0 0 24 24" data-i="search"></svg><input id="pq" type="text" placeholder="Search tools, audits, calculators, analytics..." autocomplete="off" role="combobox" aria-expanded="true" aria-controls="plist"><kbd>Esc</kbd></div>
+  <div class="plist" id="plist" role="listbox"></div>
+  <div class="pf"><span>&uarr;&darr; navigate</span><span>Enter launch</span><span>Esc close</span></div>
+</div></div>
+<div class="ov" id="quick" role="dialog" aria-modal="true" aria-labelledby="qvTitle"><div class="dlg qv" id="qvBody"></div></div>
+
+<noscript><p style="padding:24px;text-align:center">Audit HUB Pro needs JavaScript to list tools. Tools are inside the <code>tools/</code> folder.</p></noscript>
+<script src="data/tools.js"></script>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/hub.js"></script>
+</body>
+</html>

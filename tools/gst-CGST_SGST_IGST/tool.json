@@ -1,0 +1,32 @@
+{
+  "id": "gst-breakup",
+  "order": 7,
+  "name": "GST Calculator (CGST / SGST / IGST)",
+  "description": "Calculate GST with a separate CGST, SGST and IGST breakup.",
+  "category": "gst",
+  "icon": "percent",
+  "version": "1.0",
+  "popularity": 75,
+  "tags": [
+    "gst",
+    "cgst",
+    "sgst",
+    "igst",
+    "tax"
+  ],
+  "capabilities": [
+    "Intra and inter-state split",
+    "Inclusive and exclusive amounts"
+  ],
+  "bestFor": [
+    "Invoice tax breakup",
+    "Quick tax checks"
+  ],
+  "stages": [
+    "reconcile"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "featured": false,
+  "status": "active"
+}

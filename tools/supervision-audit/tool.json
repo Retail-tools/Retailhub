@@ -1,0 +1,32 @@
+{
+  "id": "supervision-audit",
+  "order": 2,
+  "name": "Supervision Audit",
+  "description": "Structured supervision audits with observations and ready-to-share reporting.",
+  "category": "audit",
+  "icon": "clipboard",
+  "version": "1.0",
+  "featured": true,
+  "popularity": 85,
+  "tags": [
+    "supervision",
+    "checklist",
+    "observation",
+    "field audit"
+  ],
+  "capabilities": [
+    "Structured observation entry",
+    "Consistent checklists",
+    "Report output"
+  ],
+  "bestFor": [
+    "On-site supervision visits",
+    "Audit team quality checks"
+  ],
+  "stages": [
+    "report"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "status": "active"
+}

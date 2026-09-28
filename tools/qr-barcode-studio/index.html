@@ -1,0 +1,2176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>QR & Barcode Studio</title>
+<meta name="description" content="Generate, customize, print and share QR codes and barcodes — entirely in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   CodeForge — design tokens
+   Palette inspired by print shops & laser scanners: warm paper ground,
+   near-black ink, a single scanner-red accent. IBM Plex Mono carries
+   technical/data text; Archivo carries UI and headings.
+=================================================================== */
+:root{
+  --paper:#F7F4EC;
+  --paper-raised:#FFFFFF;
+  --ink:#1B1A17;
+  --ink-soft:#6B665A;
+  --line:#DDD5C2;
+  --line-strong:#C7BCA2;
+  --accent:#D8431F;
+  --accent-ink:#FFF8F2;
+  --accent-soft:#F7DFD1;
+  --success:#2E7D4F;
+  --success-soft:#DCEEE1;
+  --danger:#B62E2E;
+  --danger-soft:#F6DEDA;
+  --warn:#95610A;
+  --warn-soft:#F3E6C6;
+  --radius-s:3px;
+  --radius-m:6px;
+  --font-ui:'Archivo',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --shadow-ticket: 0 1px 0 rgba(27,26,23,.04), 0 10px 24px -14px rgba(27,26,23,.35);
+  color-scheme: light;
+}
+[data-theme="dark"]{
+  --paper:#141311;
+  --paper-raised:#1D1B17;
+  --ink:#F3EFE6;
+  --ink-soft:#A79E8C;
+  --line:#3A352A;
+  --line-strong:#4C4536;
+  --accent:#FF7647;
+  --accent-ink:#1D1109;
+  --accent-soft:#3A2317;
+  --success:#5FC98A;
+  --success-soft:#173425;
+  --danger:#F08585;
+  --danger-soft:#3A1C1C;
+  --warn:#E8B24D;
+  --warn-soft:#3A2E12;
+  --shadow-ticket: 0 1px 0 rgba(0,0,0,.4), 0 14px 30px -16px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  line-height:1.45;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:0;font-family:var(--font-ui);}
+p{margin:0;}
+code{font-family:var(--font-mono);background:var(--accent-soft);padding:.1em .4em;border-radius:3px;font-size:.9em;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ============ TOPBAR ============ */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(16px,4vw,40px) 14px;
+  border-bottom:1px solid var(--line);
+}
+.topbar__brand{display:flex;align-items:center;gap:12px;}
+.topbar__mark{color:var(--accent);display:flex;}
+.topbar__title{font-size:1.4rem;font-weight:800;letter-spacing:-.01em;}
+.topbar__subtitle{margin-top:2px;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;color:var(--ink-soft);}
+.topbar__actions{display:flex;gap:8px;}
+.iconbtn{
+  display:flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid var(--line);border-radius:var(--radius-m);
+  color:var(--ink);padding:8px 12px;font-size:.82rem;font-weight:600;
+  transition:background .15s,border-color .15s;
+}
+.iconbtn:hover{background:var(--paper-raised);border-color:var(--line-strong);}
+.icon-moon{display:none;}
+[data-theme="dark"] .icon-sun{display:none;}
+[data-theme="dark"] .icon-moon{display:block;}
+
+/* ============ VIEW TABS ============ */
+.viewtabs{
+  display:flex;gap:2px;padding:0 clamp(16px,4vw,40px);
+  border-bottom:1px solid var(--line);
+  overflow-x:auto;
+}
+.viewtabs__btn{
+  background:none;border:none;border-bottom:2px solid transparent;
+  padding:12px 14px;font-size:.86rem;font-weight:600;color:var(--ink-soft);
+  white-space:nowrap;
+}
+.viewtabs__btn.is-active{color:var(--ink);border-bottom-color:var(--accent);}
+.viewtabs__btn:hover{color:var(--ink);}
+
+.app{max-width:1440px;margin:0 auto;padding:0 clamp(16px,4vw,40px) 60px;}
+
+/* ============ QUICK ROW ============ */
+.quickrow{
+  display:grid;grid-template-columns:repeat(9,minmax(0,1fr));
+  gap:10px;margin:22px 0 26px;
+}
+.quickcard{
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius-m);
+  padding:12px 10px;font-size:.74rem;font-weight:600;color:var(--ink);
+  transition:transform .12s ease, border-color .12s ease;
+}
+.quickcard:hover{border-color:var(--accent);transform:translateY(-2px);}
+.quickcard__ic{font-size:1.15rem;line-height:1;}
+
+/* ============ VIEWS ============ */
+.view{display:none;}
+.view.is-active{display:block;}
+
+/* ============ WORKSPACE ============ */
+.workspace{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:22px;align-items:start;}
+.rail{display:flex;flex-direction:column;gap:16px;}
+
+.panel{
+  background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius-m);
+  padding:16px 16px 18px;
+}
+.panel--wide{max-width:920px;margin-bottom:16px;}
+.panel__title{font-size:.9rem;font-weight:700;margin-bottom:12px;}
+.panel__row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.panel__row .panel__title{margin-bottom:0;}
+
+.badge{
+  font-family:var(--font-mono);font-size:.68rem;font-weight:600;
+  background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:20px;
+}
+
+/* segmented control */
+.segment{display:flex;border:1px solid var(--line);border-radius:var(--radius-m);overflow:hidden;margin-bottom:12px;}
+.segment__btn{
+  flex:1;background:transparent;border:none;padding:9px 8px;font-size:.78rem;font-weight:600;
+  color:var(--ink-soft);border-right:1px solid var(--line);
+}
+.segment__btn:last-child{border-right:none;}
+.segment__btn.is-active{background:var(--accent);color:var(--accent-ink);}
+.segment--small .segment__btn{padding:7px 8px;font-size:.72rem;}
+
+/* fields */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;flex:1;min-width:0;}
+.field:last-child{margin-bottom:0;}
+.field__label{font-size:.72rem;font-weight:600;color:var(--ink-soft);letter-spacing:.01em;}
+.field__hint{font-size:.72rem;color:var(--ink-soft);margin-top:-4px;}
+.field--grow{flex:2;}
+.field--narrow{flex:1;}
+.fieldrow{display:flex;gap:12px;margin-bottom:4px;}
+.fieldrow--stack{flex-direction:column;}
+input[type="text"],input[type="number"],input[type="email"],input[type="tel"],input[type="url"],
+input[type="date"],input[type="datetime-local"],select,textarea{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-s);
+  padding:9px 10px;font-size:.86rem;color:var(--ink);width:100%;
+}
+textarea{resize:vertical;min-height:64px;font-family:var(--font-mono);font-size:.8rem;}
+input[type="color"]{
+  width:100%;height:38px;border:1px solid var(--line);border-radius:var(--radius-s);
+  background:var(--paper);padding:3px;
+}
+input[type="range"]{width:100%;accent-color:var(--accent);}
+input[type="file"]{
+  font-size:.78rem;border:1px dashed var(--line-strong);border-radius:var(--radius-s);
+  padding:8px;background:var(--paper);width:100%;
+}
+.rangeval{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-soft);}
+.checkline{display:flex;align-items:center;gap:8px;font-size:.8rem;margin:10px 0;}
+.checkline input{accent-color:var(--accent);width:16px;height:16px;}
+
+.formgrid{display:flex;flex-direction:column;}
+.formgrid .field{margin-bottom:12px;}
+
+.hint{font-size:.76rem;}
+.hint--muted{color:var(--ink-soft);margin:8px 0;}
+
+.status-box{
+  font-family:var(--font-mono);font-size:.76rem;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius-s);padding:10px;margin:10px 0;white-space:pre-wrap;
+}
+.status-box.is-error{border-color:var(--danger);color:var(--danger);background:var(--danger-soft);}
+.status-box.is-ok{border-color:var(--success);background:var(--success-soft);}
+
+.preview-pre{
+  font-family:var(--font-mono);font-size:.74rem;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius-s);padding:10px;max-height:180px;overflow:auto;white-space:pre-wrap;word-break:break-word;
+  margin:0 0 8px;
+}
+.metaline{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.7rem;color:var(--ink-soft);}
+
+.alertbox{border-radius:var(--radius-s);padding:9px 11px;font-size:.78rem;margin-top:10px;line-height:1.4;}
+.alertbox--error{background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);}
+.alertbox--warn{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);}
+
+/* buttons */
+.btn{
+  border-radius:var(--radius-m);border:1px solid transparent;padding:10px 16px;
+  font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;justify-content:center;
+}
+.btn--primary{background:var(--accent);color:var(--accent-ink);}
+.btn--primary:hover{filter:brightness(1.06);}
+.btn--secondary{background:var(--paper-raised);color:var(--ink);border-color:var(--line);}
+.btn--secondary:hover{border-color:var(--line-strong);}
+.btn--ghost{background:transparent;color:var(--ink-soft);border-color:transparent;text-decoration:underline;}
+.btn--sm{padding:7px 10px;font-size:.74rem;}
+
+/* stage / ticket */
+.stage__sticky{position:sticky;top:16px;display:flex;flex-direction:column;gap:14px;}
+.ticket{
+  background:var(--paper-raised);border-radius:var(--radius-m);
+  box-shadow:var(--shadow-ticket);
+  border:1px dashed var(--line-strong);
+  padding:26px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;
+  min-height:420px;justify-content:center;
+}
+.ticket__header{font-family:var(--font-mono);font-weight:600;letter-spacing:.04em;font-size:.85rem;text-align:center;}
+.ticket__code{display:flex;align-items:center;justify-content:center;min-height:200px;width:100%;}
+.ticket__code canvas,.ticket__code svg,.ticket__code img{max-width:100%;height:auto;}
+.ticket__empty{text-align:center;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px;}
+.ticket__empty span{font-weight:600;font-size:.9rem;}
+.ticket__empty small{font-size:.76rem;}
+.ticket__meta{font-family:var(--font-mono);font-size:.76rem;text-align:center;color:var(--ink-soft);line-height:1.6;white-space:pre-wrap;}
+
+.privacy-chip{
+  font-size:.72rem;text-align:center;color:var(--ink-soft);
+  background:var(--paper-raised);border:1px solid var(--line);border-radius:20px;padding:7px 12px;
+}
+.actionbar{display:flex;gap:8px;flex-wrap:wrap;}
+.actionbar .btn{flex:1;min-width:100px;}
+
+.dropdown{position:relative;flex:1;}
+.dropdown .btn{width:100%;}
+.dropdown__menu{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:20;
+  background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius-m);
+  box-shadow:0 12px 28px -10px rgba(0,0,0,.25);overflow:hidden;
+}
+.dropdown__menu button{
+  display:block;width:100%;text-align:left;background:none;border:none;padding:10px 12px;
+  font-size:.8rem;color:var(--ink);border-bottom:1px solid var(--line);
+}
+.dropdown__menu button:last-child{border-bottom:none;}
+.dropdown__menu button:hover{background:var(--accent-soft);color:var(--accent);}
+
+/* history drawer */
+.drawer{position:fixed;inset:0;z-index:60;visibility:hidden;}
+.drawer[aria-hidden="false"]{visibility:visible;}
+.drawer__scrim{position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;transition:opacity .2s;}
+.drawer[aria-hidden="false"] .drawer__scrim{opacity:1;}
+.drawer__panel{
+  position:absolute;right:0;top:0;bottom:0;width:min(380px,92vw);background:var(--paper-raised);
+  border-left:1px solid var(--line);padding:18px;overflow-y:auto;
+  transform:translateX(100%);transition:transform .22s ease;
+}
+.drawer[aria-hidden="false"] .drawer__panel{transform:translateX(0);}
+.drawer__head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.historylist{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.historyitem{
+  border:1px solid var(--line);border-radius:var(--radius-s);padding:10px;font-size:.78rem;
+  display:flex;justify-content:space-between;gap:8px;align-items:flex-start;
+}
+.historyitem__info strong{display:block;font-size:.82rem;}
+.historyitem__info span{color:var(--ink-soft);font-family:var(--font-mono);font-size:.68rem;}
+.historyitem__actions{display:flex;flex-direction:column;gap:4px;}
+.historyitem__actions button{background:none;border:none;color:var(--accent);font-size:.7rem;font-weight:600;padding:0;text-align:right;}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;}
+.modal[hidden]{display:none;}
+.modal__scrim{position:absolute;inset:0;background:rgba(0,0,0,.4);}
+.modal__box{position:relative;background:var(--paper-raised);border-radius:var(--radius-m);padding:20px;width:min(320px,90vw);z-index:1;border:1px solid var(--line);}
+.modal__box h3{margin-bottom:12px;font-size:.95rem;}
+
+/* toast */
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);
+  background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:24px;font-size:.8rem;
+  opacity:0;pointer-events:none;transition:all .25s ease;z-index:80;
+}
+.toast.is-visible{opacity:1;transform:translate(-50%,0);}
+
+/* batch */
+.textarea{
+  width:100%;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-s);
+  padding:10px;font-family:var(--font-mono);font-size:.76rem;margin:10px 0;
+}
+.batchbar{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:.8rem;flex-wrap:wrap;}
+.batchgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:12px;}
+.batchcell{
+  border:1px solid var(--line);border-radius:var(--radius-s);padding:10px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--paper);
+}
+.batchcell canvas{max-width:100%;}
+.batchcell strong{font-size:.74rem;}
+.batchcell span{font-family:var(--font-mono);font-size:.66rem;color:var(--ink-soft);}
+.batchcell.is-invalid{border-color:var(--danger);background:var(--danger-soft);}
+.batchcell button{font-size:.68rem;color:var(--accent);background:none;border:none;font-weight:600;}
+
+/* scan */
+.scanstage{
+  background:var(--paper);border:1px dashed var(--line-strong);border-radius:var(--radius-m);
+  min-height:280px;display:flex;align-items:center;justify-content:center;margin:14px 0;overflow:hidden;
+}
+.scanstage video,.scanstage img{max-width:100%;max-height:360px;}
+.scanresult{margin-top:14px;}
+.scanresult pre{
+  font-family:var(--font-mono);font-size:.78rem;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius-s);padding:10px;white-space:pre-wrap;word-break:break-word;margin-bottom:10px;
+}
+
+/* guide */
+.guidelist{display:flex;flex-direction:column;gap:2px;}
+.guideitem{border-bottom:1px solid var(--line);}
+.guideitem__q{
+  width:100%;text-align:left;background:none;border:none;padding:14px 4px;font-weight:700;font-size:.88rem;
+  display:flex;justify-content:space-between;align-items:center;color:var(--ink);
+}
+.guideitem__a{display:none;padding:0 4px 16px;font-size:.82rem;color:var(--ink-soft);line-height:1.6;}
+.guideitem.is-open .guideitem__a{display:block;}
+.guideitem__a dl{display:grid;grid-template-columns:120px 1fr;gap:6px 14px;margin-top:8px;}
+.guideitem__a dt{font-weight:600;color:var(--ink);}
+.infoblock{border:1px solid var(--line);border-radius:var(--radius-s);padding:14px;background:var(--paper);}
+.infoblock h3{font-size:.85rem;margin-bottom:8px;}
+.infoblock p{font-size:.82rem;color:var(--ink-soft);line-height:1.6;}
+
+/* print */
+.print-area{display:none;}
+@media print{
+  body *{visibility:hidden;}
+  .print-area,.print-area *{visibility:visible;}
+  .print-area{display:block;position:absolute;left:0;top:0;width:100%;}
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1100px){
+  .quickrow{grid-template-columns:repeat(5,minmax(0,1fr));}
+}
+@media (max-width:900px){
+  .workspace{grid-template-columns:1fr;}
+  .stage__sticky{position:static;}
+}
+@media (max-width:640px){
+  .quickrow{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .topbar{padding:14px 16px;}
+  .topbar__subtitle{display:none;}
+  .iconbtn span{display:none;}
+  .actionbar .btn{min-width:80px;}
+}
+@media (max-width:400px){
+  .quickrow{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important;}
+}
+
+</style>
+</head>
+<body data-theme="light">
+
+<!-- ============ HEADER ============ -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="28" height="28"><rect x="2" y="4" width="3" height="24" fill="currentColor"/><rect x="8" y="4" width="1.5" height="24" fill="currentColor"/><rect x="12" y="4" width="4" height="24" fill="currentColor"/><rect x="18" y="4" width="1.5" height="24" fill="currentColor"/><rect x="22" y="4" width="2.5" height="24" fill="currentColor"/><rect x="27" y="4" width="3" height="24" fill="currentColor"/></svg>
+    </span>
+    <div>
+      <h1 class="topbar__title">QR &amp; Barcode Studio</h1>
+      <p class="topbar__subtitle">Create, customize, print &amp; share</p>
+    </div>
+  </div>
+  <nav class="topbar__actions" aria-label="Primary">
+    <button class="iconbtn" id="historyBtn" aria-haspopup="dialog" aria-controls="historyDrawer">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2"/></svg>
+      <span>History</span>
+    </button>
+    <button class="iconbtn" id="themeToggle" aria-label="Toggle color theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19v2.5M4.5 12H2M22 12h-2.5M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" hidden><path d="M20 14.2A8.5 8.5 0 1 1 9.8 4a6.8 6.8 0 0 0 10.2 10.2Z"/></svg>
+    </button>
+  </nav>
+</header>
+
+<!-- ============ TAB NAV ============ -->
+<nav class="viewtabs" aria-label="Sections">
+  <button class="viewtabs__btn is-active" data-view="generate" id="tabGenerate">Generate</button>
+  <button class="viewtabs__btn" data-view="batch" id="tabBatch">Batch</button>
+  <button class="viewtabs__btn" data-view="scan" id="tabScan">Scan &amp; Verify</button>
+  <button class="viewtabs__btn" data-view="guide" id="tabGuide">Format Guide</button>
+</nav>
+
+<main class="app">
+
+<!-- ============ QUICK ACTIONS ============ -->
+<section class="quickrow" aria-label="Quick actions" id="viewGenerateQuick">
+  <button class="quickcard" data-quick="qr"><span class="quickcard__ic">▦</span>Create QR</button>
+  <button class="quickcard" data-quick="barcode"><span class="quickcard__ic">▥</span>Create Barcode</button>
+  <button class="quickcard" data-quick="location"><span class="quickcard__ic">📍</span>Location QR</button>
+  <button class="quickcard" data-quick="asset"><span class="quickcard__ic">🏷</span>Asset Label</button>
+  <button class="quickcard" data-quick="product"><span class="quickcard__ic">📦</span>Product Code</button>
+  <button class="quickcard" data-quick="contact"><span class="quickcard__ic">👤</span>Contact QR</button>
+  <button class="quickcard" data-quick="wifi"><span class="quickcard__ic">📶</span>Wi&#8209;Fi QR</button>
+  <button class="quickcard" data-quick="upi"><span class="quickcard__ic">💳</span>UPI QR</button>
+  <button class="quickcard" data-quick="batch"><span class="quickcard__ic">📊</span>Batch Generate</button>
+</section>
+
+<!-- ============ GENERATE VIEW ============ -->
+<section class="view is-active" id="viewGenerate">
+  <div class="workspace">
+
+    <!-- LEFT RAIL -->
+    <div class="rail" id="rail">
+
+      <div class="panel">
+        <h2 class="panel__title">Code type</h2>
+        <div class="segment" id="categorySegment" role="tablist" aria-label="Code category">
+          <button class="segment__btn is-active" data-category="qr" role="tab" aria-selected="true">QR Code</button>
+          <button class="segment__btn" data-category="1d" role="tab" aria-selected="false">1D Barcode</button>
+          <button class="segment__btn" data-category="2d" role="tab" aria-selected="false">2D Barcode</button>
+        </div>
+        <label class="field" id="subtypeField">
+          <span class="field__label">Format</span>
+          <select id="subtypeSelect"></select>
+        </label>
+        <p class="field__hint" id="subtypeHint"></p>
+      </div>
+
+      <div class="panel" id="qrModePanel">
+        <h2 class="panel__title">Data type</h2>
+        <label class="field">
+          <span class="field__label">What are you encoding?</span>
+          <select id="qrModeSelect">
+            <option value="text">Plain text</option>
+            <option value="url">Website / URL</option>
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+            <option value="sms">SMS</option>
+            <option value="wifi">Wi&#8209;Fi</option>
+            <option value="vcard">Contact (vCard)</option>
+            <option value="calendar">Calendar event</option>
+            <option value="geo">Location / GPS</option>
+            <option value="upi">UPI payment</option>
+            <option value="product">Product / Asset</option>
+            <option value="json">Custom JSON</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel__title">Data</h2>
+        <div id="dataFormFields" class="formgrid"></div>
+      </div>
+
+      <div class="panel" id="locationPanel" hidden>
+        <h2 class="panel__title">📍 Location</h2>
+        <div class="segment segment--small" id="locationModeSegment">
+          <button class="segment__btn is-active" data-locmode="current">Current</button>
+          <button class="segment__btn" data-locmode="manual">Manual</button>
+        </div>
+        <button class="btn btn--secondary" id="getLocationBtn" type="button">Get my current location</button>
+        <p class="hint hint--muted">Your location is accessed only after browser permission and is processed locally in your browser. It is never sent anywhere.</p>
+        <div id="locationStatus" class="status-box" hidden></div>
+        <div class="fieldrow">
+          <label class="field">
+            <span class="field__label">Latitude</span>
+            <input type="number" id="latInput" step="0.000001" min="-90" max="90" placeholder="12.971600">
+          </label>
+          <label class="field">
+            <span class="field__label">Longitude</span>
+            <input type="number" id="lngInput" step="0.000001" min="-180" max="180" placeholder="77.594600">
+          </label>
+        </div>
+        <label class="field">
+          <span class="field__label">Payload format</span>
+          <select id="geoFormatSelect">
+            <option value="maps">Google Maps URL</option>
+            <option value="geo">geo: URI</option>
+            <option value="structured">Structured text</option>
+          </select>
+        </label>
+        <p class="field__hint" id="locMeta"></p>
+      </div>
+
+      <div class="panel" id="idTimestampPanel" hidden>
+        <h2 class="panel__title">ID &amp; timestamp</h2>
+        <div class="fieldrow">
+          <label class="field field--grow">
+            <span class="field__label">Unique ID</span>
+            <input type="text" id="uniqueIdInput" placeholder="CF-20260911-7F42A9">
+          </label>
+          <label class="field field--narrow">
+            <span class="field__label">Style</span>
+            <select id="idStyleSelect">
+              <option value="prefixdate">Prefix + date</option>
+              <option value="uuid">Random UUID</option>
+              <option value="short">Short ID</option>
+              <option value="timestamp">Timestamp ID</option>
+            </select>
+          </label>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="regenIdBtn" type="button">↻ Regenerate</button>
+        <label class="checkline">
+          <input type="checkbox" id="includeTimestamp" checked>
+          <span>Include capture timestamp</span>
+        </label>
+      </div>
+
+      <div class="panel">
+        <div class="panel__row">
+          <h2 class="panel__title">Encoded data preview</h2>
+          <span class="badge" id="capacityBadge">—</span>
+        </div>
+        <pre class="preview-pre" id="dataPreviewText" aria-live="polite"></pre>
+        <div class="metaline">
+          <span id="charCount">0 characters</span>
+          <span id="byteCount">0 bytes</span>
+        </div>
+        <div class="alertbox alertbox--error" id="validationError" hidden></div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel__title">Customization</h2>
+        <div id="customPanelQR">
+          <div class="fieldrow">
+            <label class="field">
+              <span class="field__label">Size (px)</span>
+              <input type="range" id="qrSize" min="120" max="800" value="320">
+              <span class="rangeval" id="qrSizeVal">320px</span>
+            </label>
+            <label class="field">
+              <span class="field__label">Error correction</span>
+              <select id="qrEC">
+                <option value="L">L — ~7%</option>
+                <option value="M" selected>M — ~15%</option>
+                <option value="Q">Q — ~25%</option>
+                <option value="H">H — ~30%</option>
+              </select>
+            </label>
+          </div>
+          <label class="field">
+            <span class="field__label">Quiet zone margin</span>
+            <input type="range" id="qrMargin" min="0" max="10" value="4">
+            <span class="rangeval" id="qrMarginVal">4 modules</span>
+          </label>
+          <div class="fieldrow">
+            <label class="field">
+              <span class="field__label">Foreground</span>
+              <input type="color" id="qrFg" value="#1b1a17">
+            </label>
+            <label class="field">
+              <span class="field__label">Background</span>
+              <input type="color" id="qrBg" value="#ffffff">
+            </label>
+          </div>
+          <div class="alertbox alertbox--warn" id="contrastWarning" hidden></div>
+          <label class="field">
+            <span class="field__label">Center logo (optional)</span>
+            <input type="file" id="qrLogoInput" accept="image/*">
+          </label>
+          <div class="fieldrow" id="logoControls" hidden>
+            <label class="field">
+              <span class="field__label">Logo size</span>
+              <input type="range" id="qrLogoSize" min="10" max="25" value="18">
+              <span class="rangeval" id="qrLogoSizeVal">18%</span>
+            </label>
+            <button class="btn btn--ghost btn--sm" id="removeLogoBtn" type="button">Remove logo</button>
+          </div>
+        </div>
+        <div id="customPanelBarcode" hidden>
+          <div class="fieldrow">
+            <label class="field">
+              <span class="field__label">Bar width</span>
+              <input type="range" id="bcWidth" min="1" max="4" step="0.2" value="2">
+              <span class="rangeval" id="bcWidthVal">2.0</span>
+            </label>
+            <label class="field">
+              <span class="field__label">Height (px)</span>
+              <input type="range" id="bcHeight" min="40" max="220" value="100">
+              <span class="rangeval" id="bcHeightVal">100px</span>
+            </label>
+          </div>
+          <div class="fieldrow">
+            <label class="field">
+              <span class="field__label">Bar color</span>
+              <input type="color" id="bcColor" value="#1b1a17">
+            </label>
+            <label class="field">
+              <span class="field__label">Background</span>
+              <input type="color" id="bcBg" value="#ffffff">
+            </label>
+          </div>
+          <label class="checkline">
+            <input type="checkbox" id="bcShowText" checked>
+            <span>Show human-readable text</span>
+          </label>
+          <div class="fieldrow" id="bcTextControls">
+            <label class="field">
+              <span class="field__label">Text size</span>
+              <input type="range" id="bcFontSize" min="10" max="28" value="16">
+              <span class="rangeval" id="bcFontSizeVal">16px</span>
+            </label>
+            <label class="field">
+              <span class="field__label">Text position</span>
+              <select id="bcTextPos">
+                <option value="bottom">Bottom</option>
+                <option value="top">Top</option>
+              </select>
+            </label>
+          </div>
+          <label class="field">
+            <span class="field__label">Quiet margin (px)</span>
+            <input type="range" id="bcMargin" min="0" max="40" value="10">
+            <span class="rangeval" id="bcMarginVal">10px</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel" id="labelModePanel">
+        <h2 class="panel__title">Smart label</h2>
+        <label class="field">
+          <span class="field__label">Label style</span>
+          <select id="labelStyleSelect">
+            <option value="none">Code only (no label card)</option>
+            <option value="minimal">Minimal</option>
+            <option value="asset">Asset tag</option>
+            <option value="product">Product label</option>
+            <option value="inventory">Inventory label</option>
+            <option value="equipment">Equipment label</option>
+            <option value="contact">Contact card</option>
+            <option value="location">Location marker</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field__label">Company / header text</span>
+          <input type="text" id="labelCompany" placeholder="Your company name">
+        </label>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PREVIEW -->
+    <div class="stage">
+      <div class="stage__sticky">
+        <div class="ticket" id="ticket">
+          <div class="ticket__header" id="ticketHeader" hidden></div>
+          <div class="ticket__code" id="codeCanvasWrap">
+            <div class="ticket__empty" id="codeEmptyState">
+              <span>Nothing to preview yet</span>
+              <small>Choose a code type and enter data on the left.</small>
+            </div>
+          </div>
+          <div class="ticket__meta" id="ticketMeta" hidden></div>
+        </div>
+        <div class="privacy-chip">🔒 Generated locally in your browser. Nothing is uploaded.</div>
+
+        <div class="actionbar">
+          <button class="btn btn--primary" id="generateBtn" type="button">Generate</button>
+          <div class="dropdown">
+            <button class="btn btn--secondary" id="downloadBtn" type="button" aria-haspopup="true" aria-expanded="false">Download ▾</button>
+            <div class="dropdown__menu" id="downloadMenu" hidden>
+              <button data-download="png-512">PNG — 512px</button>
+              <button data-download="png-1024">PNG — 1024px</button>
+              <button data-download="png-2048">PNG — 2048px</button>
+              <button data-download="png-custom">PNG — custom…</button>
+              <button data-download="svg">SVG (vector)</button>
+              <button data-download="jpg">JPG</button>
+            </div>
+          </div>
+          <button class="btn btn--secondary" id="printBtn" type="button">Print</button>
+          <button class="btn btn--secondary" id="shareBtn" type="button">Share</button>
+          <button class="btn btn--ghost" id="saveHistoryBtn" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BATCH VIEW ============ -->
+<section class="view" id="viewBatch">
+  <div class="panel panel--wide">
+    <h2 class="panel__title">Batch generate from CSV</h2>
+    <p class="hint hint--muted">Upload a CSV with columns such as <code>AssetID, Name, Serial, Latitude, Longitude</code>. One code is generated per row.</p>
+    <div class="fieldrow">
+      <input type="file" id="csvFileInput" accept=".csv,text/csv">
+      <button class="btn btn--ghost btn--sm" id="loadSampleCsv" type="button">Load sample CSV</button>
+    </div>
+    <textarea id="csvTextArea" class="textarea" rows="6" placeholder="AssetID,Name,Serial,Latitude,Longitude&#10;AST001,POS Terminal,SN001,12.9716,77.5946"></textarea>
+    <div class="fieldrow">
+      <label class="field">
+        <span class="field__label">Output format</span>
+        <select id="batchFormat">
+          <option value="qr">QR — structured text</option>
+          <option value="code128">Barcode — CODE128 (Asset ID)</option>
+        </select>
+      </label>
+      <button class="btn btn--primary" id="runBatchBtn" type="button">Generate batch</button>
+    </div>
+    <div id="batchErrors" class="alertbox alertbox--error" hidden></div>
+    <div class="batchbar" id="batchBar" hidden>
+      <span id="batchSummary"></span>
+      <button class="btn btn--secondary btn--sm" id="downloadZipBtn" type="button">Download all (.zip)</button>
+      <button class="btn btn--secondary btn--sm" id="printSheetBtn" type="button">Printable sheet</button>
+    </div>
+    <div class="batchgrid" id="batchGrid"></div>
+  </div>
+</section>
+
+<!-- ============ SCAN VIEW ============ -->
+<section class="view" id="viewScan">
+  <div class="panel panel--wide">
+    <h2 class="panel__title">Scan &amp; verify a QR code</h2>
+    <p class="hint hint--muted">Uses your device camera locally — nothing is uploaded. You can also decode from an image file.</p>
+    <div class="fieldrow">
+      <button class="btn btn--primary" id="startScanBtn" type="button">Start camera</button>
+      <button class="btn btn--secondary" id="stopScanBtn" type="button" hidden>Stop camera</button>
+      <label class="btn btn--ghost" for="scanFileInput">Decode from image…</label>
+      <input type="file" id="scanFileInput" accept="image/*" hidden>
+    </div>
+    <div class="scanstage">
+      <video id="scanVideo" playsinline muted hidden></video>
+      <canvas id="scanCanvas" hidden></canvas>
+      <img id="scanImagePreview" hidden alt="Uploaded image for decoding">
+    </div>
+    <div id="scanResult" class="scanresult" hidden>
+      <h3>Decoded data</h3>
+      <pre id="scanResultText"></pre>
+      <div class="fieldrow">
+        <button class="btn btn--secondary btn--sm" id="copyScanBtn" type="button">Copy</button>
+        <button class="btn btn--secondary btn--sm" id="openMapScanBtn" type="button" hidden>Open location</button>
+      </div>
+      <div id="scanMeta" class="metaline"></div>
+    </div>
+    <div id="scanError" class="alertbox alertbox--error" hidden></div>
+  </div>
+</section>
+
+<!-- ============ GUIDE VIEW ============ -->
+<section class="view" id="viewGuide">
+  <div class="panel panel--wide">
+    <h2 class="panel__title">Static vs. dynamic QR codes</h2>
+    <div class="fieldrow fieldrow--stack">
+      <div class="infoblock">
+        <h3>Static QR (used by CodeForge)</h3>
+        <p>Data is encoded directly inside the QR pattern. Works without a server, no subscription, no database — the code will scan the same forever.</p>
+      </div>
+      <div class="infoblock">
+        <h3>Dynamic QR</h3>
+        <p>The QR stores a short redirect URL (e.g. <code>https://yourdomain.com/a/AST-000124</code>) whose destination can change later. This requires a backend/database to host and update the redirect — CodeForge can generate the QR for such a URL, but it cannot host the redirect itself.</p>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel--wide">
+    <h2 class="panel__title">Format guide</h2>
+    <div id="formatGuideList" class="guidelist"></div>
+  </div>
+  <div class="panel panel--wide">
+    <h2 class="panel__title">🔒 Privacy first</h2>
+    <p>Barcode and QR generation happens locally in your browser. Location access requires your explicit permission and is only requested when you click a location button — never automatically. Your data is not uploaded to any server unless you explicitly use a server-based feature (CodeForge has none). History, batch data and preferences are stored only in this browser's local storage.</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ HISTORY DRAWER ============ -->
+<div class="drawer" id="historyDrawer" role="dialog" aria-label="History" aria-hidden="true">
+  <div class="drawer__panel">
+    <div class="drawer__head">
+      <h2>History</h2>
+      <button class="iconbtn" id="closeHistoryBtn" aria-label="Close history">✕</button>
+    </div>
+    <button class="btn btn--ghost btn--sm" id="clearHistoryBtn" type="button">Clear history</button>
+    <ul class="historylist" id="historyList"></ul>
+    <p class="hint hint--muted" id="historyEmptyHint">Nothing saved yet. Use the Save button on any generated code.</p>
+  </div>
+  <div class="drawer__scrim" id="drawerScrim"></div>
+</div>
+
+<!-- custom resolution dialog -->
+<div class="modal" id="customResModal" hidden>
+  <div class="modal__box">
+    <h3>Custom resolution</h3>
+    <label class="field">
+      <span class="field__label">Width in pixels</span>
+      <input type="number" id="customResInput" min="64" max="6000" value="1500">
+    </label>
+    <div class="fieldrow">
+      <button class="btn btn--ghost btn--sm" id="customResCancel" type="button">Cancel</button>
+      <button class="btn btn--primary btn--sm" id="customResConfirm" type="button">Download</button>
+    </div>
+  </div>
+  <div class="modal__scrim"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- print-only area -->
+<div id="printArea" class="print-area"></div>
+
+<!-- ============ LIBRARIES (CDN) ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/4.7.0/bwip-js-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.2/jszip.min.js"></script>
+<script>
+'use strict';
+/* =====================================================================
+   CodeForge — app.js
+   Organized into: utils, theme/nav, state, templates, location, id/ts,
+   payload builders, validators, renderers (QR/1D/2D), preview pipeline,
+   downloads, print, history, batch, scanner, format guide, init.
+===================================================================== */
+
+/* ---------------------------- UTILITIES ---------------------------- */
+const $  = (sel, ctx) => (ctx || document).querySelector(sel);
+const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+
+function debounce(fn, wait) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+}
+
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('is-visible');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('is-visible'), 2600);
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function uuidv4() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+function bytesUTF8(str) { return new TextEncoder().encode(str || '').length; }
+
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  const n = h.length === 3
+    ? h.split('').map(c => parseInt(c + c, 16))
+    : [h.slice(0, 2), h.slice(2, 4), h.slice(4, 6)].map(c => parseInt(c, 16));
+  return { r: n[0], g: n[1], b: n[2] };
+}
+function relLuminance({ r, g, b }) {
+  const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+function contrastRatio(hex1, hex2) {
+  const l1 = relLuminance(hexToRgb(hex1)), l2 = relLuminance(hexToRgb(hex2));
+  const [a, b] = l1 > l2 ? [l1, l2] : [l2, l1];
+  return (a + 0.05) / (b + 0.05);
+}
+
+/* ---------------------------- THEME ---------------------------- */
+(function initTheme() {
+  const saved = localStorage.getItem('qrbarcode_theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.body.setAttribute('data-theme', theme);
+})();
+$('#themeToggle').addEventListener('click', () => {
+  const cur = document.body.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  localStorage.setItem('qrbarcode_theme', next);
+});
+
+/* ---------------------------- VIEW NAV ---------------------------- */
+function switchView(view) {
+  $$('.view').forEach(v => v.classList.remove('is-active'));
+  $('#view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('is-active');
+  $$('.viewtabs__btn').forEach(b => b.classList.toggle('is-active', b.dataset.view === view));
+  $('#viewGenerateQuick').style.display = view === 'generate' ? 'grid' : 'none';
+}
+$$('.viewtabs__btn').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
+
+/* ---------------------------- HISTORY DRAWER ---------------------------- */
+function openDrawer() {
+  $('#historyDrawer').setAttribute('aria-hidden', 'false');
+  renderHistoryList();
+}
+function closeDrawer() { $('#historyDrawer').setAttribute('aria-hidden', 'true'); }
+$('#historyBtn').addEventListener('click', openDrawer);
+$('#closeHistoryBtn').addEventListener('click', closeDrawer);
+$('#drawerScrim').addEventListener('click', closeDrawer);
+
+/* ===================================================================
+   STATE
+=================================================================== */
+const state = {
+  category: 'qr',       // qr | 1d | 2d
+  subtype: 'qr',         // qr | code128 | ean13 | ... | datamatrix | pdf417 | azteccode
+  qrMode: 'product',
+  location: null,        // {lat,lng,accuracy,timestamp,altitude,heading,speed}
+  isDemo: true,
+  currentPayload: '',
+  currentValid: false,
+  logoImage: null,
+  batch: { rows: [], canvases: [] }
+};
+
+/* ===================================================================
+   CODE TYPE DEFINITIONS
+=================================================================== */
+const SUBTYPES = {
+  qr: [{ value: 'qr', label: 'QR Code' }],
+  '1d': [
+    { value: 'code128', label: 'CODE128' },
+    { value: 'code39', label: 'CODE39' },
+    { value: 'ean13', label: 'EAN-13' },
+    { value: 'ean8', label: 'EAN-8' },
+    { value: 'upc', label: 'UPC-A' },
+    { value: 'upce', label: 'UPC-E' },
+    { value: 'itf14', label: 'ITF-14' },
+    { value: 'itf', label: 'ITF' },
+    { value: 'msi', label: 'MSI' },
+    { value: 'codabar', label: 'Codabar' }
+  ],
+  '2d': [
+    { value: 'datamatrix', label: 'Data Matrix' },
+    { value: 'pdf417', label: 'PDF417' },
+    { value: 'azteccode', label: 'Aztec' }
+  ]
+};
+const JSBARCODE_FORMAT = {
+  code128: 'CODE128', code39: 'CODE39', ean13: 'EAN13', ean8: 'EAN8',
+  upc: 'UPC', upce: 'UPCE', itf14: 'ITF14', itf: 'ITF', msi: 'MSI', codabar: 'codabar'
+};
+const SUBTYPE_HINT = {
+  code128: 'Letters, numbers and symbols. Great general-purpose default.',
+  code39: 'Uppercase letters, numbers and - . $ / + % space.',
+  ean13: '12 digits (checksum added automatically) or 13 with a valid checksum.',
+  ean8: '7 digits (checksum added automatically) or 8 with a valid checksum.',
+  upc: '11 digits (checksum added automatically) or 12 with a valid checksum.',
+  upce: '6–8 digit compressed UPC.',
+  itf14: 'Exactly 13 or 14 digits. Used on shipping cartons.',
+  itf: 'Numeric, even number of digits.',
+  msi: 'Numeric only. Common on warehouse shelf labels.',
+  codabar: 'Digits and - $ : / . + with A–D start/stop characters.',
+  datamatrix: 'Compact 2D symbol for small parts labelling.',
+  pdf417: 'High-capacity stacked 2D symbol used on IDs and shipping labels.',
+  azteccode: 'Dense 2D symbol that needs no quiet zone — used on tickets/boarding passes.',
+  qr: 'Flexible 2D symbol readable by any modern phone camera.'
+};
+
+/* ===================================================================
+   SMART DATA FORM TEMPLATES (QR modes)
+=================================================================== */
+const FORM_TEMPLATES = {
+  text: [{ id: 'content', label: 'Text content', type: 'textarea', placeholder: 'Enter any text…' }],
+  url: [{ id: 'url', label: 'URL', type: 'text', placeholder: 'https://example.com' }],
+  email: [
+    { id: 'to', label: 'Email address', type: 'text', placeholder: 'name@example.com' },
+    { id: 'subject', label: 'Subject', type: 'text', placeholder: 'Optional subject' },
+    { id: 'body', label: 'Message', type: 'textarea', placeholder: 'Optional message' }
+  ],
+  phone: [{ id: 'phone', label: 'Phone number', type: 'text', placeholder: '+91 98765 43210' }],
+  sms: [
+    { id: 'phone', label: 'Phone number', type: 'text', placeholder: '+91 98765 43210' },
+    { id: 'message', label: 'Message', type: 'textarea', placeholder: 'Optional message' }
+  ],
+  wifi: [
+    { id: 'ssid', label: 'Network name (SSID)', type: 'text', placeholder: 'Office-WiFi' },
+    { id: 'password', label: 'Password', type: 'text', placeholder: 'Leave blank if open' },
+    { id: 'security', label: 'Security', type: 'select', options: ['WPA2', 'WPA', 'WPA3', 'WEP', 'None'] },
+    { id: 'hidden', label: 'Hidden network', type: 'checkbox' }
+  ],
+  vcard: [
+    { id: 'name', label: 'Full name', type: 'text' },
+    { id: 'company', label: 'Company', type: 'text' },
+    { id: 'title', label: 'Job title', type: 'text' },
+    { id: 'phone', label: 'Phone', type: 'text' },
+    { id: 'email', label: 'Email', type: 'text' },
+    { id: 'website', label: 'Website', type: 'text' },
+    { id: 'address', label: 'Address', type: 'text' },
+    { id: 'notes', label: 'Notes', type: 'textarea' }
+  ],
+  calendar: [
+    { id: 'title', label: 'Event title', type: 'text' },
+    { id: 'start', label: 'Start', type: 'datetime-local' },
+    { id: 'end', label: 'End', type: 'datetime-local' },
+    { id: 'location', label: 'Location', type: 'text' },
+    { id: 'description', label: 'Description', type: 'textarea' }
+  ],
+  geo: [],
+  upi: [
+    { id: 'pa', label: 'UPI ID (VPA)', type: 'text', placeholder: 'name@bank' },
+    { id: 'pn', label: 'Payee name', type: 'text' },
+    { id: 'am', label: 'Amount', type: 'text', placeholder: 'Optional' },
+    { id: 'cu', label: 'Currency', type: 'text', placeholder: 'INR' },
+    { id: 'tr', label: 'Transaction ref', type: 'text', placeholder: 'Optional' },
+    { id: 'tn', label: 'Note', type: 'text', placeholder: 'Optional' }
+  ],
+  product: [
+    { id: 'name', label: 'Product / asset name', type: 'text' },
+    { id: 'sku', label: 'SKU / product code', type: 'text' },
+    { id: 'batch', label: 'Batch number', type: 'text' },
+    { id: 'serial', label: 'Serial number', type: 'text' },
+    { id: 'quantity', label: 'Quantity', type: 'text' },
+    { id: 'price', label: 'Price', type: 'text' },
+    { id: 'mfgDate', label: 'Manufacturing date', type: 'date' },
+    { id: 'expDate', label: 'Expiry date', type: 'date' },
+    { id: 'company', label: 'Company', type: 'text' },
+    { id: 'website', label: 'Website', type: 'text' },
+    { id: 'notes', label: 'Additional notes', type: 'textarea' }
+  ],
+  json: [{ id: 'json', label: 'JSON payload', type: 'textarea', placeholder: '{\n  "asset_id": "AST-000124"\n}' }]
+};
+const DEMO_VALUES = {
+  product: {
+    name: 'POS Terminal', sku: 'AST-2026-0001', batch: 'B-4471', serial: 'POS982374',
+    quantity: '1', price: '', mfgDate: '', expDate: '', company: 'Example Pvt Ltd', website: '', notes: ''
+  }
+};
+const LOCATION_MODES = new Set(['geo', 'product']);
+const ID_TIMESTAMP_MODES = new Set(['geo', 'product', 'json']);
+
+/* ===================================================================
+   FORM RENDERING
+=================================================================== */
+function renderDataForm() {
+  const wrap = $('#dataFormFields');
+  wrap.innerHTML = '';
+
+  if (state.category !== 'qr') { renderBarcodeForm(); return; }
+
+  const mode = state.qrMode;
+  const tmpl = FORM_TEMPLATES[mode] || [];
+  if (state.isDemo && mode === 'product') {
+    const b = document.createElement('div');
+    b.className = 'alertbox alertbox--warn';
+    b.innerHTML = 'Showing example data. <button type="button" id="clearDemoBtn" style="background:none;border:none;color:inherit;text-decoration:underline;font-weight:700;cursor:pointer;">Clear</button>';
+    wrap.appendChild(b);
+    b.querySelector('#clearDemoBtn').addEventListener('click', () => {
+      state.isDemo = false; renderDataForm(); scheduleUpdate();
+    });
+  }
+  tmpl.forEach(f => wrap.appendChild(buildFieldEl(f, mode)));
+  if (mode === 'json') {
+    const hint = document.createElement('p');
+    hint.className = 'field__hint';
+    hint.textContent = 'Must be valid JSON. It will be validated before generating.';
+    wrap.appendChild(hint);
+  }
+
+  $('#locationPanel').hidden = !LOCATION_MODES.has(mode);
+  $('#idTimestampPanel').hidden = !ID_TIMESTAMP_MODES.has(mode);
+  $('#labelModePanel').hidden = false;
+}
+
+function buildFieldEl(f, mode) {
+  const label = document.createElement('label');
+  label.className = 'field';
+  const demo = state.isDemo && DEMO_VALUES[mode] && DEMO_VALUES[mode][f.id] != null ? DEMO_VALUES[mode][f.id] : '';
+  if (f.type === 'textarea') {
+    label.innerHTML = `<span class="field__label">${escapeHtml(f.label)}</span>
+      <textarea data-field="${f.id}" placeholder="${escapeHtml(f.placeholder || '')}">${escapeHtml(demo)}</textarea>`;
+  } else if (f.type === 'select') {
+    const opts = f.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+    label.innerHTML = `<span class="field__label">${escapeHtml(f.label)}</span><select data-field="${f.id}">${opts}</select>`;
+  } else if (f.type === 'checkbox') {
+    label.className = 'checkline';
+    label.innerHTML = `<input type="checkbox" data-field="${f.id}"><span>${escapeHtml(f.label)}</span>`;
+  } else {
+    label.innerHTML = `<span class="field__label">${escapeHtml(f.label)}</span>
+      <input type="${f.type}" data-field="${f.id}" placeholder="${escapeHtml(f.placeholder || '')}" value="${escapeHtml(demo)}">`;
+  }
+  return label;
+}
+
+function renderBarcodeForm() {
+  const wrap = $('#dataFormFields');
+  const example = {
+    code128: 'ASSET-000124', code39: 'ASSET 124', ean13: '590123412345', ean8: '9638507',
+    upc: '03600029145', upce: '01234565', itf14: '10012345678902', itf: '123456',
+    msi: '123456', codabar: 'A123456A', datamatrix: 'ASSET-000124', pdf417: 'ASSET-000124 / SN928374',
+    azteccode: 'ASSET-000124'
+  }[state.subtype] || '';
+  wrap.innerHTML = `<label class="field">
+      <span class="field__label">Data</span>
+      <input type="text" id="bcDataInput" data-field="data" placeholder="${escapeHtml(example)}">
+    </label>
+    <p class="field__hint">${escapeHtml(SUBTYPE_HINT[state.subtype] || '')}</p>`;
+  $('#locationPanel').hidden = true;
+  $('#idTimestampPanel').hidden = true;
+  $('#labelModePanel').hidden = false;
+}
+
+function collectFormData() {
+  const data = {};
+  $$('#dataFormFields [data-field]').forEach(el => {
+    data[el.dataset.field] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  return data;
+}
+
+/* ===================================================================
+   LOCATION
+=================================================================== */
+function fmtLoc(n) { return typeof n === 'number' ? n.toFixed(6) : n; }
+
+function getCurrentLocation() {
+  if (!('geolocation' in navigator)) {
+    showLocationStatus('Geolocation is not supported in this browser. Please enter coordinates manually.', true);
+    return;
+  }
+  showLocationStatus('Requesting location permission…', false);
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const c = pos.coords;
+      state.location = {
+        lat: c.latitude, lng: c.longitude, accuracy: c.accuracy,
+        altitude: c.altitude, heading: c.heading, speed: c.speed,
+        timestamp: new Date(pos.timestamp).toLocaleString()
+      };
+      $('#latInput').value = fmtLoc(c.latitude);
+      $('#lngInput').value = fmtLoc(c.longitude);
+      const lines = [
+        `Latitude: ${fmtLoc(c.latitude)}`,
+        `Longitude: ${fmtLoc(c.longitude)}`,
+        `Accuracy: ±${Math.round(c.accuracy)}m`,
+        `Captured: ${state.location.timestamp}`,
+        `Altitude: ${c.altitude != null ? Math.round(c.altitude) + 'm' : 'unavailable'}`,
+        `Heading: ${c.heading != null ? Math.round(c.heading) + '°' : 'unavailable'}`,
+        `Speed: ${c.speed != null ? c.speed.toFixed(1) + ' m/s' : 'unavailable'}`
+      ];
+      showLocationStatus(lines.join('\n'), false, true);
+      scheduleUpdate();
+    },
+    err => {
+      const msgs = {
+        1: 'Location access was denied.\n\nPlease allow location permission in your browser or enter latitude and longitude manually.',
+        2: 'Location is currently unavailable. Please enter latitude and longitude manually.',
+        3: 'Location request timed out. Please try again or enter coordinates manually.'
+      };
+      showLocationStatus(msgs[err.code] || 'Could not get location. Please enter coordinates manually.', true);
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+function showLocationStatus(text, isError, isOk) {
+  const box = $('#locationStatus');
+  box.hidden = false;
+  box.textContent = text;
+  box.className = 'status-box' + (isError ? ' is-error' : isOk ? ' is-ok' : '');
+}
+$('#getLocationBtn').addEventListener('click', getCurrentLocation);
+$('#latInput').addEventListener('input', syncManualLocation);
+$('#lngInput').addEventListener('input', syncManualLocation);
+function syncManualLocation() {
+  const lat = parseFloat($('#latInput').value), lng = parseFloat($('#lngInput').value);
+  if (!isNaN(lat) && !isNaN(lng)) {
+    state.location = state.location || {};
+    state.location.lat = lat; state.location.lng = lng;
+  }
+  scheduleUpdate();
+}
+$$('#locationModeSegment .segment__btn').forEach(b => b.addEventListener('click', () => {
+  $$('#locationModeSegment .segment__btn').forEach(x => x.classList.remove('is-active'));
+  b.classList.add('is-active');
+  const manual = b.dataset.locmode === 'manual';
+  $('#getLocationBtn').style.display = manual ? 'none' : '';
+}));
+
+function buildGeoPayload() {
+  if (!state.location || isNaN(state.location.lat) || isNaN(state.location.lng)) return null;
+  const { lat, lng, accuracy, timestamp } = state.location;
+  const fmt = $('#geoFormatSelect').value;
+  if (fmt === 'maps') return `https://www.google.com/maps?q=${fmtLoc(lat)},${fmtLoc(lng)}`;
+  if (fmt === 'geo') return `geo:${fmtLoc(lat)},${fmtLoc(lng)}`;
+  return [
+    `Latitude: ${fmtLoc(lat)}`, `Longitude: ${fmtLoc(lng)}`,
+    `Accuracy: ${accuracy ? '±' + Math.round(accuracy) + 'm' : 'unavailable'}`,
+    `Captured: ${timestamp || 'unavailable'}`
+  ].join('\n');
+}
+
+/* ===================================================================
+   ID & TIMESTAMP
+=================================================================== */
+function regenerateId() {
+  const style = $('#idStyleSelect').value;
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const ymd = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+  let id;
+  if (style === 'uuid') id = uuidv4();
+  else if (style === 'short') id = Math.random().toString(36).slice(2, 10).toUpperCase();
+  else if (style === 'timestamp') id = 'TS-' + Date.now().toString(36).toUpperCase();
+  else id = `CF-${ymd}-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+  $('#uniqueIdInput').value = id;
+  scheduleUpdate();
+}
+$('#regenIdBtn').addEventListener('click', regenerateId);
+$('#idStyleSelect').addEventListener('change', regenerateId);
+
+/* ===================================================================
+   PAYLOAD BUILDERS
+=================================================================== */
+function wifiEscape(s) { return (s || '').replace(/([\\;,:"])/g, '\\$1'); }
+
+function buildWifiPayload(d) {
+  const secMap = { WPA2: 'WPA', WPA: 'WPA', WPA3: 'WPA', WEP: 'WEP', None: 'nopass' };
+  const t = secMap[d.security] || 'WPA';
+  const pass = t === 'nopass' ? '' : wifiEscape(d.password);
+  return `WIFI:T:${t};S:${wifiEscape(d.ssid)};P:${pass};H:${d.hidden ? 'true' : 'false'};;`;
+}
+
+function buildVCard(d) {
+  const lines = ['BEGIN:VCARD', 'VERSION:3.0'];
+  if (d.name) { lines.push(`N:${d.name};;;;`); lines.push(`FN:${d.name}`); }
+  if (d.company) lines.push(`ORG:${d.company}`);
+  if (d.title) lines.push(`TITLE:${d.title}`);
+  if (d.phone) lines.push(`TEL;TYPE=CELL:${d.phone}`);
+  if (d.email) lines.push(`EMAIL:${d.email}`);
+  if (d.website) lines.push(`URL:${d.website}`);
+  if (d.address) lines.push(`ADR:;;${d.address};;;;`);
+  if (d.notes) lines.push(`NOTE:${d.notes.replace(/\n/g, ' ')}`);
+  lines.push('END:VCARD');
+  return lines.join('\n');
+}
+
+function isoCompact(v) { return v ? v.replace(/[-:]/g, '').replace(/(\d{8})T(\d{4})/, '$1T$200') : ''; }
+function buildCalendarPayload(d) {
+  const lines = ['BEGIN:VEVENT'];
+  if (d.title) lines.push(`SUMMARY:${d.title}`);
+  if (d.start) lines.push(`DTSTART:${isoCompact(d.start)}`);
+  if (d.end) lines.push(`DTEND:${isoCompact(d.end)}`);
+  if (d.location) lines.push(`LOCATION:${d.location}`);
+  if (d.description) lines.push(`DESCRIPTION:${d.description.replace(/\n/g, ' ')}`);
+  lines.push('END:VEVENT');
+  return lines.join('\n');
+}
+
+function buildUPIPayload(d) {
+  const params = [];
+  if (d.pa) params.push('pa=' + encodeURIComponent(d.pa));
+  if (d.pn) params.push('pn=' + encodeURIComponent(d.pn));
+  if (d.am) params.push('am=' + encodeURIComponent(d.am));
+  params.push('cu=' + encodeURIComponent(d.cu || 'INR'));
+  if (d.tr) params.push('tr=' + encodeURIComponent(d.tr));
+  if (d.tn) params.push('tn=' + encodeURIComponent(d.tn));
+  return 'upi://pay?' + params.join('&');
+}
+
+function buildProductPayload(d) {
+  const lines = [];
+  const id = $('#uniqueIdInput').value.trim();
+  if (id) lines.push(`Asset ID: ${id}`);
+  const map = [
+    ['name', 'Name'], ['sku', 'SKU'], ['batch', 'Batch'], ['serial', 'Serial No'],
+    ['quantity', 'Quantity'], ['price', 'Price'], ['mfgDate', 'Mfg Date'], ['expDate', 'Expiry Date'],
+    ['company', 'Company'], ['website', 'Website'], ['notes', 'Notes']
+  ];
+  map.forEach(([k, label]) => { if (d[k]) lines.push(`${label}: ${d[k]}`); });
+  if (state.location && !isNaN(state.location.lat)) {
+    lines.push(`Latitude: ${fmtLoc(state.location.lat)}`);
+    lines.push(`Longitude: ${fmtLoc(state.location.lng)}`);
+  }
+  if ($('#includeTimestamp').checked) lines.push(`Captured: ${new Date().toLocaleString()}`);
+  return lines.join('\n');
+}
+
+function buildPayload() {
+  const mode = state.qrMode;
+  const d = collectFormData();
+  switch (mode) {
+    case 'text': return d.content || '';
+    case 'url': {
+      let u = (d.url || '').trim();
+      if (u && !/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(u)) u = 'https://' + u;
+      return u;
+    }
+    case 'email': {
+      const params = [];
+      if (d.subject) params.push('subject=' + encodeURIComponent(d.subject));
+      if (d.body) params.push('body=' + encodeURIComponent(d.body));
+      return `mailto:${d.to || ''}${params.length ? '?' + params.join('&') : ''}`;
+    }
+    case 'phone': return `tel:${(d.phone || '').trim()}`;
+    case 'sms': return `sms:${(d.phone || '').trim()}${d.message ? '?body=' + encodeURIComponent(d.message) : ''}`;
+    case 'wifi': return buildWifiPayload(d);
+    case 'vcard': return buildVCard(d);
+    case 'calendar': return buildCalendarPayload(d);
+    case 'geo': return buildGeoPayload() || '';
+    case 'upi': return buildUPIPayload(d);
+    case 'product': return buildProductPayload(d);
+    case 'json': return (d.json || '').trim();
+    default: return '';
+  }
+}
+
+/* ===================================================================
+   VALIDATION
+=================================================================== */
+function eanCheckDigit(digitsStr) {
+  const digits = digitsStr.split('').map(Number);
+  let sum = 0;
+  digits.forEach((n, i) => {
+    const posFromRight = digits.length - i;
+    sum += n * (posFromRight % 2 === 1 ? 3 : 1);
+  });
+  const mod = sum % 10;
+  return mod === 0 ? 0 : 10 - mod;
+}
+function validateEANLike(value, dataLen) {
+  const v = value.replace(/\s/g, '');
+  if (!/^\d+$/.test(v)) return { valid: false, message: 'Only digits are allowed.' };
+  if (v.length === dataLen) return { valid: true };
+  if (v.length === dataLen + 1) {
+    const expect = eanCheckDigit(v.slice(0, -1));
+    if (Number(v.slice(-1)) !== expect) {
+      return { valid: false, message: `Invalid checksum. Expected the last digit to be ${expect}.` };
+    }
+    return { valid: true };
+  }
+  return { valid: false, message: `Please enter ${dataLen} digits, or ${dataLen + 1} digits with a valid checksum.` };
+}
+
+function validateBarcodeValue(subtype, value) {
+  const v = (value || '').trim();
+  if (!v) return { valid: false, message: 'Please enter a value to encode.' };
+  switch (subtype) {
+    case 'ean13': return validateEANLike(v, 12);
+    case 'ean8': return validateEANLike(v, 7);
+    case 'upc': return validateEANLike(v, 11);
+    case 'upce': return /^\d{6,8}$/.test(v) ? { valid: true } : { valid: false, message: 'UPC-E needs 6–8 digits.' };
+    case 'itf14': return /^\d{13,14}$/.test(v) ? { valid: true } : { valid: false, message: 'ITF-14 needs exactly 13 or 14 digits.' };
+    case 'itf': return /^\d+$/.test(v) && v.length % 2 === 0 ? { valid: true } : { valid: false, message: 'ITF needs an even number of digits.' };
+    case 'msi': return /^\d+$/.test(v) ? { valid: true } : { valid: false, message: 'MSI only supports digits.' };
+    case 'codabar': return /^[A-Da-d][0-9\-$:/.+]*[A-Da-d]$/.test(v) ? { valid: true } : { valid: false, message: 'Codabar needs start/stop letters A–D around digits and - $ : / . +' };
+    case 'code39': return /^[A-Za-z0-9\-. $/+%]+$/.test(v) ? { valid: true } : { valid: false, message: 'CODE39 supports A–Z, 0–9 and - . $ / + % space.' };
+    default: return { valid: true }; // CODE128 and 2D formats are permissive
+  }
+}
+
+function validateQR() {
+  const mode = state.qrMode, d = collectFormData();
+  if (mode === 'url') {
+    const u = (d.url || '').trim();
+    if (!u) return { valid: false, message: 'Please enter a URL.' };
+    try { new URL(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(u) ? u : 'https://' + u); }
+    catch { return { valid: false, message: 'That does not look like a valid URL.' }; }
+  }
+  if (mode === 'email' && d.to && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.to)) {
+    return { valid: false, message: 'Please enter a valid email address.' };
+  }
+  if (mode === 'wifi' && !d.ssid) return { valid: false, message: 'Please enter a network name (SSID).' };
+  if (mode === 'upi' && (!d.pa || !d.pn)) return { valid: false, message: 'UPI ID and payee name are required.' };
+  if (mode === 'geo' && (!state.location || isNaN(state.location.lat) || isNaN(state.location.lng))) {
+    return { valid: false, message: 'Add a location — use "Get my current location" or enter coordinates manually.' };
+  }
+  if (state.location) {
+    const { lat, lng } = state.location;
+    if (lat < -90 || lat > 90) return { valid: false, message: 'Latitude must be between -90 and 90.' };
+    if (lng < -180 || lng > 180) return { valid: false, message: 'Longitude must be between -180 and 180.' };
+  }
+  if (mode === 'json') {
+    if (!d.json || !d.json.trim()) return { valid: false, message: 'Please enter JSON data.' };
+    try { JSON.parse(d.json); } catch (e) { return { valid: false, message: 'Invalid JSON: ' + e.message }; }
+  }
+  if (mode === 'text' && !(d.content || '').trim()) return { valid: false, message: 'Please enter some text.' };
+  if (mode === 'phone' && !(d.phone || '').trim()) return { valid: false, message: 'Please enter a phone number.' };
+  if (mode === 'vcard' && !(d.name || '').trim()) return { valid: false, message: 'Please enter a name for the contact.' };
+  if (mode === 'product' && !(d.name || d.sku || '').trim()) return { valid: false, message: 'Please enter at least a product name or SKU.' };
+  return { valid: true };
+}
+
+/* QR capacity estimate (approximate — byte mode) */
+function estimateQRVersion(len, ec) {
+  const ratio = { L: 1, M: 0.855, Q: 0.655, H: 0.50 }[ec] || 0.855;
+  const eff = len / ratio;
+  const pts = [[1, 17], [5, 106], [10, 271], [15, 520], [20, 858], [25, 1273], [30, 1732], [35, 2303], [40, 2953]];
+  if (eff <= 0) return { version: 1, overflow: false };
+  if (eff > pts[pts.length - 1][1]) return { version: 40, overflow: true };
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [v1, c1] = pts[i], [v2, c2] = pts[i + 1];
+    if (eff <= c2) {
+      const t = (eff - c1) / (c2 - c1);
+      return { version: Math.max(1, Math.round(v1 + t * (v2 - v1))), overflow: false };
+    }
+  }
+  return { version: 40, overflow: true };
+}
+
+/* ===================================================================
+   RENDERERS
+=================================================================== */
+function clearStage() {
+  $('#codeCanvasWrap').innerHTML = '';
+}
+function setEmptyState(msg) {
+  clearStage();
+  const div = document.createElement('div');
+  div.className = 'ticket__empty';
+  div.innerHTML = `<span>Nothing to preview yet</span><small>${escapeHtml(msg || 'Fix the highlighted issue to see a preview.')}</small>`;
+  $('#codeCanvasWrap').appendChild(div);
+  $('#ticketHeader').hidden = true;
+  $('#ticketMeta').hidden = true;
+}
+
+function currentQROptions() {
+  return {
+    ec: $('#qrEC').value,
+    margin: Number($('#qrMargin').value),
+    size: Number($('#qrSize').value),
+    fg: $('#qrFg').value,
+    bg: $('#qrBg').value,
+    logoSizePct: Number($('#qrLogoSize').value)
+  };
+}
+function currentBarcodeOptions() {
+  return {
+    width: Number($('#bcWidth').value),
+    height: Number($('#bcHeight').value),
+    color: $('#bcColor').value,
+    bg: $('#bcBg').value,
+    showText: $('#bcShowText').checked,
+    fontSize: Number($('#bcFontSize').value),
+    textPos: $('#bcTextPos').value,
+    margin: Number($('#bcMargin').value)
+  };
+}
+
+function renderQR(text, opts, canvas, cb) {
+  if (typeof QRCode === 'undefined') { cb && cb(new Error('The QR library did not load. Check your internet connection and reload the page.')); return; }
+  let ec = opts.ec;
+  if (state.logoImage && ec !== 'H') ec = 'Q'; // auto-bump EC when a logo is present
+  QRCode.toCanvas(canvas, text, {
+    errorCorrectionLevel: ec, margin: opts.margin, width: opts.size,
+    color: { dark: opts.fg, light: opts.bg }
+  }, err => {
+    if (err) { cb && cb(err); return; }
+    if (state.logoImage) drawLogo(canvas, opts);
+    cb && cb(null);
+  });
+}
+function drawLogo(canvas, opts) {
+  const ctx = canvas.getContext('2d');
+  const box = canvas.width * (Math.min(opts.logoSizePct, 25) / 100);
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  ctx.fillStyle = opts.bg;
+  const pad = box * 0.14;
+  ctx.fillRect(cx - box / 2 - pad / 2, cy - box / 2 - pad / 2, box + pad, box + pad);
+  ctx.drawImage(state.logoImage, cx - box / 2, cy - box / 2, box, box);
+}
+
+function renderBarcode1D(subtype, value, opts, svgEl) {
+  if (typeof JsBarcode === 'undefined') throw new Error('The barcode library did not load. Check your internet connection and reload the page.');
+  JsBarcode(svgEl, value, {
+    format: JSBARCODE_FORMAT[subtype],
+    width: opts.width, height: opts.height,
+    lineColor: opts.color, background: opts.bg,
+    displayValue: opts.showText, fontSize: opts.fontSize,
+    textPosition: opts.textPos, margin: opts.margin, font: 'IBM Plex Mono'
+  });
+}
+function renderBarcode2D(subtype, value, opts, canvas) {
+  if (typeof bwipjs === 'undefined') throw new Error('The 2D barcode library did not load. Check your internet connection and reload the page.');
+  bwipjs.toCanvas(canvas, {
+    bcid: subtype, text: value, scale: 3,
+    height: subtype === 'pdf417' ? 16 : 22, includetext: false,
+    backgroundcolor: opts.bg.replace('#', ''), barcolor: opts.color.replace('#', ''),
+    paddingwidth: Math.max(1, Math.round(opts.margin / 5)), paddingheight: Math.max(1, Math.round(opts.margin / 5))
+  });
+}
+
+/* ===================================================================
+   PREVIEW PIPELINE
+=================================================================== */
+const scheduleUpdate = debounce(updatePreview, 220);
+
+function updatePreview() {
+  $('#validationError').hidden = true;
+  $('#contrastWarning').hidden = true;
+
+  if (state.category === 'qr') updateQRPreview();
+  else updateBarcodePreview();
+}
+
+function updateQRPreview() {
+  const check = validateQR();
+  if (!check.valid) { showValidationError(check.message); return; }
+  const payload = buildPayload();
+  if (!payload) { showValidationError('Nothing to encode yet.'); return; }
+
+  state.currentPayload = payload;
+  state.currentValid = true;
+  $('#dataPreviewText').textContent = payload;
+  const chars = payload.length, bytes = bytesUTF8(payload);
+  $('#charCount').textContent = `${chars} characters`;
+  $('#byteCount').textContent = `${bytes} bytes`;
+  const ec = $('#qrEC').value;
+  const est = estimateQRVersion(bytes, ec);
+  $('#capacityBadge').textContent = `~v${est.version}${est.overflow ? '+' : ''} · EC ${ec}`;
+
+  const opts = currentQROptions();
+  const fg = opts.fg, bg = opts.bg;
+  const ratio = contrastRatio(fg, bg);
+  if (ratio < 4) {
+    $('#contrastWarning').hidden = false;
+    $('#contrastWarning').textContent = 'Low contrast between foreground and background may make this code difficult to scan. Consider a darker foreground or lighter background.';
+  }
+
+  clearStage();
+  const canvas = document.createElement('canvas');
+  $('#codeCanvasWrap').appendChild(canvas);
+  renderQR(payload, opts, canvas, err => {
+    if (err) { showValidationError('Could not generate this QR code: ' + err.message); return; }
+    renderLabelChrome();
+  });
+}
+
+function updateBarcodePreview() {
+  const value = ($('#bcDataInput') && $('#bcDataInput').value || '').trim();
+  if (!value) { showValidationError('Please enter a value to encode.'); return; }
+  const v = validateBarcodeValue(state.subtype, value);
+  if (!v.valid) { showValidationError(v.message); return; }
+
+  state.currentPayload = value;
+  state.currentValid = true;
+  $('#dataPreviewText').textContent = value;
+  $('#charCount').textContent = `${value.length} characters`;
+  $('#byteCount').textContent = `${bytesUTF8(value)} bytes`;
+  $('#capacityBadge').textContent = state.category === '1d' ? '1D symbology' : '2D symbology';
+
+  clearStage();
+  const opts = currentBarcodeOptions();
+  try {
+    if (state.category === '1d') {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      $('#codeCanvasWrap').appendChild(svg);
+      renderBarcode1D(state.subtype, value, opts, svg);
+    } else {
+      const canvas = document.createElement('canvas');
+      $('#codeCanvasWrap').appendChild(canvas);
+      renderBarcode2D(state.subtype, value, opts, canvas);
+    }
+    renderLabelChrome();
+  } catch (e) {
+    showValidationError('Could not generate this barcode: ' + (e.message || e));
+  }
+}
+
+function showValidationError(msg) {
+  state.currentValid = false;
+  $('#validationError').hidden = false;
+  $('#validationError').textContent = msg;
+  setEmptyState(msg);
+}
+
+function renderLabelChrome() {
+  const style = $('#labelStyleSelect').value;
+  const header = $('#ticketHeader'), meta = $('#ticketMeta');
+  const company = $('#labelCompany').value.trim();
+  if (style === 'none') { header.hidden = true; meta.hidden = true; return; }
+
+  header.hidden = !company;
+  header.textContent = company;
+
+  const d = state.category === 'qr' ? collectFormData() : {};
+  const lines = [];
+  const id = $('#uniqueIdInput') && !$('#idTimestampPanel').hidden ? $('#uniqueIdInput').value.trim() : '';
+  if (style === 'asset' || style === 'inventory' || style === 'equipment') {
+    if (id) lines.push(`ASSET  ${id}`);
+    if (d.serial) lines.push(`SERIAL  ${d.serial}`);
+    if (d.name) lines.push(d.name);
+    if (state.location) lines.push(`GPS  ${fmtLoc(state.location.lat)}, ${fmtLoc(state.location.lng)}`);
+  } else if (style === 'product') {
+    if (d.name) lines.push(d.name);
+    if (d.sku) lines.push(`SKU  ${d.sku}`);
+    if (d.price) lines.push(d.price);
+  } else if (style === 'contact') {
+    if (d.name) lines.push(d.name);
+    if (d.company) lines.push(d.company);
+    if (d.phone) lines.push(d.phone);
+  } else if (style === 'location') {
+    if (state.location) lines.push(`${fmtLoc(state.location.lat)}, ${fmtLoc(state.location.lng)}`);
+  } else if (style === 'minimal') {
+    if (id || d.name) lines.push(id || d.name);
+  }
+  meta.hidden = lines.length === 0;
+  meta.textContent = lines.join('\n');
+}
+
+/* ===================================================================
+   CATEGORY / SUBTYPE UI WIRING
+=================================================================== */
+function populateSubtypeSelect() {
+  const sel = $('#subtypeSelect');
+  sel.innerHTML = SUBTYPES[state.category].map(s => `<option value="${s.value}">${s.label}</option>`).join('');
+  sel.value = state.subtype = SUBTYPES[state.category][0].value;
+  $('#subtypeHint').textContent = SUBTYPE_HINT[state.subtype] || '';
+  $('#qrModePanel').hidden = state.category !== 'qr';
+  $('#customPanelQR').hidden = state.category !== 'qr';
+  $('#customPanelBarcode').hidden = state.category === 'qr';
+}
+$$('#categorySegment .segment__btn').forEach(btn => btn.addEventListener('click', () => {
+  $$('#categorySegment .segment__btn').forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); });
+  btn.classList.add('is-active'); btn.setAttribute('aria-selected', 'true');
+  state.category = btn.dataset.category;
+  populateSubtypeSelect();
+  renderDataForm();
+  scheduleUpdate();
+}));
+$('#subtypeSelect').addEventListener('change', e => {
+  state.subtype = e.target.value;
+  $('#subtypeHint').textContent = SUBTYPE_HINT[state.subtype] || '';
+  if (state.category !== 'qr') renderBarcodeForm();
+  scheduleUpdate();
+});
+$('#qrModeSelect').addEventListener('change', e => {
+  state.qrMode = e.target.value;
+  renderDataForm();
+  scheduleUpdate();
+});
+
+/* delegate input/change across the rail for live preview */
+$('#rail').addEventListener('input', e => {
+  if (e.target.closest('#locationModeSegment')) return;
+  scheduleUpdate();
+});
+$('#rail').addEventListener('change', () => scheduleUpdate());
+
+/* range value labels */
+function bindRange(id, valId, fmt) {
+  const el = $('#' + id), out = $('#' + valId);
+  const update = () => out.textContent = fmt(el.value);
+  el.addEventListener('input', update); update();
+}
+bindRange('qrSize', 'qrSizeVal', v => v + 'px');
+bindRange('qrMargin', 'qrMarginVal', v => v + ' modules');
+bindRange('qrLogoSize', 'qrLogoSizeVal', v => v + '%');
+bindRange('bcWidth', 'bcWidthVal', v => Number(v).toFixed(1));
+bindRange('bcHeight', 'bcHeightVal', v => v + 'px');
+bindRange('bcFontSize', 'bcFontSizeVal', v => v + 'px');
+bindRange('bcMargin', 'bcMarginVal', v => v + 'px');
+
+$('#bcShowText').addEventListener('change', e => {
+  $('#bcTextControls').style.opacity = e.target.checked ? '1' : '.4';
+  $('#bcTextControls').style.pointerEvents = e.target.checked ? '' : 'none';
+});
+
+/* logo upload */
+$('#qrLogoInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => { state.logoImage = img; $('#logoControls').hidden = false; scheduleUpdate(); };
+  img.src = URL.createObjectURL(file);
+});
+$('#removeLogoBtn').addEventListener('click', () => {
+  state.logoImage = null; $('#qrLogoInput').value = ''; $('#logoControls').hidden = true; scheduleUpdate();
+});
+
+/* ===================================================================
+   QUICK ACTIONS
+=================================================================== */
+const QUICK_MAP = {
+  qr: { category: 'qr', qrMode: 'text' },
+  barcode: { category: '1d', subtype: 'code128' },
+  location: { category: 'qr', qrMode: 'geo' },
+  asset: { category: 'qr', qrMode: 'product', labelStyle: 'asset' },
+  product: { category: 'qr', qrMode: 'product', labelStyle: 'product' },
+  contact: { category: 'qr', qrMode: 'vcard' },
+  wifi: { category: 'qr', qrMode: 'wifi' },
+  upi: { category: 'qr', qrMode: 'upi' }
+};
+$$('.quickcard').forEach(card => card.addEventListener('click', () => {
+  const key = card.dataset.quick;
+  if (key === 'batch') { switchView('batch'); return; }
+  switchView('generate');
+  const cfg = QUICK_MAP[key];
+  if (!cfg) return;
+  state.category = cfg.category;
+  $$('#categorySegment .segment__btn').forEach(b => b.classList.toggle('is-active', b.dataset.category === cfg.category));
+  populateSubtypeSelect();
+  if (cfg.subtype) { state.subtype = cfg.subtype; $('#subtypeSelect').value = cfg.subtype; }
+  if (cfg.qrMode) { state.qrMode = cfg.qrMode; $('#qrModeSelect').value = cfg.qrMode; }
+  if (cfg.labelStyle) $('#labelStyleSelect').value = cfg.labelStyle;
+  renderDataForm();
+  scheduleUpdate();
+}));
+
+/* ===================================================================
+   DOWNLOAD / PRINT / SHARE
+=================================================================== */
+function getRenderedElement() { return $('#codeCanvasWrap canvas, #codeCanvasWrap svg'); }
+
+function rasterizeToCanvas(targetSize, cb) {
+  const el = getRenderedElement();
+  if (!el || !state.currentValid) { toast('Nothing to download yet.'); return; }
+
+  if (el.tagName.toLowerCase() === 'canvas') {
+    // regenerate fresh at the requested size for crisp output
+    if (state.category === 'qr') {
+      const c = document.createElement('canvas');
+      renderQR(state.currentPayload, { ...currentQROptions(), size: targetSize }, c, () => cb(c));
+    } else { // 2D barcode: scale via bwip-js
+      const c = document.createElement('canvas');
+      const opts = currentBarcodeOptions();
+      const scale = Math.max(1, Math.round(targetSize / 300));
+      bwipjs.toCanvas(c, {
+        bcid: state.subtype, text: state.currentPayload, scale,
+        height: state.subtype === 'pdf417' ? 16 : 22, includetext: false,
+        backgroundcolor: opts.bg.replace('#', ''), barcolor: opts.color.replace('#', '')
+      });
+      cb(c);
+    }
+  } else { // SVG (1D barcode) -> rasterize
+    const xml = new XMLSerializer().serializeToString(el);
+    const svg64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
+    const img = new Image();
+    img.onload = () => {
+      const ratio = img.height / img.width || 0.3;
+      const c = document.createElement('canvas');
+      c.width = targetSize; c.height = Math.round(targetSize * ratio);
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = currentBarcodeOptions().bg; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      cb(c);
+    };
+    img.src = svg64;
+  }
+}
+
+function downloadPNG(size) {
+  rasterizeToCanvas(size, canvas => canvas.toBlob(blob => downloadBlob(blob, `qrcode-barcode-${state.subtype}-${size}.png`), 'image/png'));
+}
+function downloadJPG() {
+  rasterizeToCanvas(1024, canvas => {
+    const out = document.createElement('canvas'); out.width = canvas.width; out.height = canvas.height;
+    const ctx = out.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, out.width, out.height);
+    ctx.drawImage(canvas, 0, 0);
+    out.toBlob(blob => downloadBlob(blob, `qrcode-barcode-${state.subtype}.jpg`), 'image/jpeg', 0.92);
+  });
+}
+function downloadSVG() {
+  if (!state.currentValid) { toast('Nothing to download yet.'); return; }
+  if (state.category === '1d') {
+    const svg = getRenderedElement();
+    const xml = new XMLSerializer().serializeToString(svg);
+    downloadBlob(new Blob([xml], { type: 'image/svg+xml' }), `qrcode-barcode-${state.subtype}.svg`);
+    return;
+  }
+  if (state.category === '2d') { toast('SVG isn\u2019t available for 2D symbols here — downloading PNG instead.'); downloadPNG(1024); return; }
+  const opts = currentQROptions();
+  if (state.logoImage) toast('Note: the center logo is not included in SVG export.');
+  QRCode.toString(state.currentPayload, {
+    type: 'svg', errorCorrectionLevel: opts.ec, margin: opts.margin,
+    color: { dark: opts.fg, light: opts.bg }
+  }, (err, svgStr) => {
+    if (err) { toast('Could not create SVG.'); return; }
+    downloadBlob(new Blob([svgStr], { type: 'image/svg+xml' }), `qrcode-barcode-qr.svg`);
+  });
+}
+
+$('#downloadBtn').addEventListener('click', () => {
+  const menu = $('#downloadMenu');
+  menu.hidden = !menu.hidden;
+  $('#downloadBtn').setAttribute('aria-expanded', String(!menu.hidden));
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dropdown')) $('#downloadMenu').hidden = true;
+});
+$('#downloadMenu').addEventListener('click', e => {
+  const key = e.target.dataset.download;
+  if (!key) return;
+  $('#downloadMenu').hidden = true;
+  if (key === 'png-512') downloadPNG(512);
+  else if (key === 'png-1024') downloadPNG(1024);
+  else if (key === 'png-2048') downloadPNG(2048);
+  else if (key === 'png-custom') { $('#customResModal').hidden = false; }
+  else if (key === 'svg') downloadSVG();
+  else if (key === 'jpg') downloadJPG();
+});
+$('#customResCancel').addEventListener('click', () => $('#customResModal').hidden = true);
+$('#customResConfirm').addEventListener('click', () => {
+  const v = Math.max(64, Math.min(6000, Number($('#customResInput').value) || 1500));
+  $('#customResModal').hidden = true;
+  downloadPNG(v);
+});
+
+$('#generateBtn').addEventListener('click', updatePreview);
+
+$('#printBtn').addEventListener('click', () => {
+  if (!state.currentValid) { toast('Nothing to print yet.'); return; }
+  rasterizeToCanvas(900, canvas => {
+    const img = canvas.toDataURL('image/png');
+    const company = $('#labelCompany').value.trim();
+    const meta = $('#ticketMeta').textContent;
+    $('#printArea').innerHTML = `
+      <div style="width:100%;max-width:400px;margin:24px auto;text-align:center;font-family:'IBM Plex Mono',monospace;border:1px dashed #999;padding:24px;">
+        ${company ? `<div style="font-weight:700;margin-bottom:10px;">${escapeHtml(company)}</div>` : ''}
+        <img src="${img}" style="max-width:100%;">
+        ${meta ? `<div style="white-space:pre-wrap;margin-top:10px;font-size:12px;">${escapeHtml(meta)}</div>` : ''}
+      </div>`;
+    window.print();
+  });
+});
+
+$('#shareBtn').addEventListener('click', async () => {
+  if (!state.currentValid) { toast('Nothing to share yet.'); return; }
+  rasterizeToCanvas(800, async canvas => {
+    canvas.toBlob(async blob => {
+      const file = new File([blob], `qrcode-barcode-${state.subtype}.png`, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: 'CodeForge', text: state.currentPayload }); return; }
+        catch { /* user cancelled */ return; }
+      }
+      try {
+        await navigator.clipboard.writeText(state.currentPayload);
+        toast('Sharing isn\u2019t supported here — encoded data copied to clipboard instead.');
+      } catch { downloadPNG(800); }
+    });
+  });
+});
+
+/* ===================================================================
+   HISTORY
+=================================================================== */
+const HISTORY_KEY = 'qrbarcode_history';
+function loadHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; } }
+function persistHistory(list) { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 50))); }
+
+function saveToHistory() {
+  if (!state.currentValid) { toast('Generate a valid code first.'); return; }
+  const list = loadHistory();
+  const entry = {
+    id: uuidv4(),
+    name: $('#labelCompany').value.trim() || (state.category === 'qr' ? state.qrMode : state.subtype),
+    category: state.category, subtype: state.subtype, qrMode: state.qrMode,
+    data: state.currentPayload, createdAt: new Date().toISOString()
+  };
+  list.unshift(entry);
+  persistHistory(list);
+  toast('Saved to history.');
+  renderHistoryList();
+}
+function renderHistoryList() {
+  const list = loadHistory();
+  const ul = $('#historyList');
+  ul.innerHTML = '';
+  $('#historyEmptyHint').hidden = list.length > 0;
+  list.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'historyitem';
+    const dt = new Date(item.createdAt).toLocaleString();
+    li.innerHTML = `
+      <div class="historyitem__info">
+        <strong>${escapeHtml(item.name || item.subtype)}</strong>
+        <span>${escapeHtml(item.category.toUpperCase())} · ${escapeHtml(item.subtype)} · ${escapeHtml(dt)}</span>
+      </div>
+      <div class="historyitem__actions">
+        <button data-act="open">Open</button>
+        <button data-act="dup">Duplicate</button>
+        <button data-act="del">Delete</button>
+      </div>`;
+    li.querySelector('[data-act="open"]').addEventListener('click', () => reopenHistoryItem(item));
+    li.querySelector('[data-act="dup"]').addEventListener('click', () => { const l = loadHistory(); l.unshift({ ...item, id: uuidv4(), createdAt: new Date().toISOString() }); persistHistory(l); renderHistoryList(); toast('Duplicated.'); });
+    li.querySelector('[data-act="del"]').addEventListener('click', () => { persistHistory(loadHistory().filter(x => x.id !== item.id)); renderHistoryList(); });
+    ul.appendChild(li);
+  });
+}
+function reopenHistoryItem(item) {
+  closeDrawer();
+  switchView('generate');
+  state.category = item.category;
+  $$('#categorySegment .segment__btn').forEach(b => b.classList.toggle('is-active', b.dataset.category === item.category));
+  populateSubtypeSelect();
+  state.subtype = item.subtype; $('#subtypeSelect').value = item.subtype;
+  if (item.category === 'qr') { state.qrMode = item.qrMode; $('#qrModeSelect').value = item.qrMode; state.isDemo = false; renderDataForm();
+    if (item.qrMode === 'text') $('#dataFormFields [data-field="content"]').value = item.data;
+    if (item.qrMode === 'json') $('#dataFormFields [data-field="json"]').value = item.data;
+  } else { renderBarcodeForm(); $('#bcDataInput').value = item.data; }
+  scheduleUpdate();
+  toast('Loaded from history.');
+}
+$('#clearHistoryBtn').addEventListener('click', () => {
+  if (confirm('Clear all saved history? This cannot be undone.')) { persistHistory([]); renderHistoryList(); }
+});
+$('#saveHistoryBtn').addEventListener('click', saveToHistory);
+
+/* ===================================================================
+   BATCH GENERATION
+=================================================================== */
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim().length);
+  if (!lines.length) return { headers: [], rows: [] };
+  const headers = lines[0].split(',').map(h => h.trim());
+  const rows = lines.slice(1).map(line => {
+    const cells = line.split(',').map(c => c.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = cells[i] ?? '');
+    return obj;
+  });
+  return { headers, rows };
+}
+const SAMPLE_CSV = `AssetID,Name,Serial,Latitude,Longitude
+AST001,POS Terminal,SN001,12.9716,77.5946
+AST002,Scanner,SN002,12.9720,77.5950
+AST003,Printer,SN003,12.9730,77.5960`;
+
+$('#loadSampleCsv').addEventListener('click', () => $('#csvTextArea').value = SAMPLE_CSV);
+$('#csvFileInput').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => $('#csvTextArea').value = reader.result;
+  reader.readAsText(file);
+});
+
+$('#runBatchBtn').addEventListener('click', () => generateBatch());
+
+function generateBatch() {
+  const { headers, rows } = parseCSV($('#csvTextArea').value);
+  const errBox = $('#batchErrors');
+  const grid = $('#batchGrid');
+  grid.innerHTML = '';
+  state.batch = { rows: [], canvases: [] };
+  if (!rows.length) { errBox.hidden = false; errBox.textContent = 'No rows found. Paste or upload CSV data first.'; return; }
+
+  const format = $('#batchFormat').value;
+  const errors = [];
+  let ok = 0;
+
+  rows.forEach((row, i) => {
+    const assetId = row.AssetID || row.ID || row.SKU || `ROW-${i + 1}`;
+    const lat = parseFloat(row.Latitude), lng = parseFloat(row.Longitude);
+    const hasLoc = !isNaN(lat) && !isNaN(lng);
+    if ((row.Latitude || row.Longitude) && !hasLoc) errors.push(`Row ${i + 2}: invalid latitude/longitude.`);
+    if (!row.AssetID && !row.ID) errors.push(`Row ${i + 2}: missing AssetID — using "${assetId}".`);
+
+    const cell = document.createElement('div');
+    cell.className = 'batchcell';
+    const canvas = document.createElement('canvas');
+    cell.appendChild(canvas);
+    const label = document.createElement('strong'); label.textContent = row.Name || assetId;
+    const sub = document.createElement('span'); sub.textContent = assetId;
+    cell.appendChild(label); cell.appendChild(sub);
+    const dl = document.createElement('button'); dl.textContent = 'Download PNG';
+    cell.appendChild(dl);
+    grid.appendChild(cell);
+
+    let text, renderFn;
+    if (format === 'code128') {
+      text = assetId;
+      try { const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); JsBarcode(svg, text, { format: 'CODE128', width: 2, height: 60, displayValue: true, fontSize: 12 });
+        const xml = new XMLSerializer().serializeToString(svg);
+        const img = new Image();
+        img.onload = () => { canvas.width = 260; canvas.height = 120; const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 260, 120); ctx.drawImage(img, 20, 10, 220, 100); state.batch.canvases[i] = canvas; };
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
+      } catch { cell.classList.add('is-invalid'); errors.push(`Row ${i + 2}: could not encode "${text}" as CODE128.`); }
+    } else {
+      const lines = [`Asset ID: ${assetId}`];
+      if (row.Name) lines.push(`Name: ${row.Name}`);
+      if (row.Serial) lines.push(`Serial: ${row.Serial}`);
+      if (hasLoc) { lines.push(`Latitude: ${lat.toFixed(6)}`); lines.push(`Longitude: ${lng.toFixed(6)}`); }
+      Object.keys(row).forEach(k => { if (!['AssetID', 'ID', 'Name', 'Serial', 'Latitude', 'Longitude'].includes(k) && row[k]) lines.push(`${k}: ${row[k]}`); });
+      text = lines.join('\n');
+      canvas.width = 220; canvas.height = 220;
+      QRCode.toCanvas(canvas, text, { errorCorrectionLevel: 'M', margin: 2, width: 220 }, err => { if (!err) state.batch.canvases[i] = canvas; });
+    }
+    dl.addEventListener('click', () => { canvas.toBlob(blob => downloadBlob(blob, `${assetId}.png`)); });
+    state.batch.rows.push({ assetId, text });
+    ok++;
+  });
+
+  errBox.hidden = errors.length === 0;
+  errBox.innerHTML = errors.map(e => escapeHtml(e)).join('<br>');
+  $('#batchBar').hidden = false;
+  $('#batchSummary').textContent = `${ok} code${ok !== 1 ? 's' : ''} generated${errors.length ? `, ${errors.length} warning${errors.length !== 1 ? 's' : ''}` : ''}.`;
+}
+
+$('#downloadZipBtn').addEventListener('click', async () => {
+  if (!state.batch.rows.length) { toast('Generate a batch first.'); return; }
+  if (typeof JSZip === 'undefined') { toast('The ZIP library did not load. Please reload the page, or download codes individually.'); return; }
+  toast('Zipping files…');
+  const zip = new JSZip();
+  await Promise.all(state.batch.rows.map((r, i) => new Promise(resolve => {
+    const canvas = state.batch.canvases[i];
+    if (!canvas) return resolve();
+    canvas.toBlob(blob => { zip.file(`${r.assetId}.png`, blob); resolve(); });
+  })));
+  const blob = await zip.generateAsync({ type: 'blob' });
+  downloadBlob(blob, 'codeforge-batch.zip');
+});
+
+$('#printSheetBtn').addEventListener('click', () => {
+  if (!state.batch.rows.length) { toast('Generate a batch first.'); return; }
+  const cards = state.batch.rows.map((r, i) => {
+    const canvas = state.batch.canvases[i];
+    const img = canvas ? canvas.toDataURL('image/png') : '';
+    return `<div style="width:160px;display:inline-block;text-align:center;border:1px dashed #999;margin:6px;padding:10px;font-family:'IBM Plex Mono',monospace;font-size:10px;">
+      <img src="${img}" style="width:100%;"><div style="margin-top:6px;">${escapeHtml(r.assetId)}</div></div>`;
+  }).join('');
+  $('#printArea').innerHTML = `<div style="text-align:center;">${cards}</div>`;
+  window.print();
+});
+
+/* ===================================================================
+   SCAN & VERIFY
+=================================================================== */
+let scanStream = null, scanRAF = null;
+function startScanner() {
+  $('#scanError').hidden = true;
+  if (typeof jsQR === 'undefined') {
+    $('#scanError').hidden = false;
+    $('#scanError').textContent = 'The scanner library did not load (this can happen on restricted networks). Please reload the page, or use another QR reader app.';
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(stream => {
+      scanStream = stream;
+      const video = $('#scanVideo');
+      video.srcObject = stream; video.hidden = false; video.play();
+      $('#startScanBtn').hidden = true; $('#stopScanBtn').hidden = false;
+      scanLoop();
+    })
+    .catch(err => {
+      const msg = err.name === 'NotAllowedError'
+        ? 'Camera access was denied. Please allow camera permission, or decode from an uploaded image instead.'
+        : 'Could not access the camera. Please try decoding from an uploaded image instead.';
+      $('#scanError').hidden = false; $('#scanError').textContent = msg;
+    });
+}
+function stopScanner() {
+  if (scanRAF) cancelAnimationFrame(scanRAF);
+  if (scanStream) scanStream.getTracks().forEach(t => t.stop());
+  scanStream = null;
+  $('#scanVideo').hidden = true;
+  $('#startScanBtn').hidden = false; $('#stopScanBtn').hidden = true;
+}
+function scanLoop() {
+  const video = $('#scanVideo'), canvas = $('#scanCanvas');
+  if (!video.videoWidth) { scanRAF = requestAnimationFrame(scanLoop); return; }
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(img.data, img.width, img.height);
+  if (code) { showScanResult(code.data); stopScanner(); return; }
+  scanRAF = requestAnimationFrame(scanLoop);
+}
+$('#startScanBtn').addEventListener('click', startScanner);
+$('#stopScanBtn').addEventListener('click', stopScanner);
+$('#scanFileInput').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  if (typeof jsQR === 'undefined') {
+    $('#scanError').hidden = false;
+    $('#scanError').textContent = 'The scanner library did not load (this can happen on restricted networks). Please reload the page and try again.';
+    return;
+  }
+  const img = new Image();
+  img.onload = () => {
+    $('#scanImagePreview').src = img.src; $('#scanImagePreview').hidden = false;
+    const canvas = $('#scanCanvas');
+    canvas.width = img.width; canvas.height = img.height;
+    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(data.data, data.width, data.height);
+    if (code) { $('#scanError').hidden = true; showScanResult(code.data); }
+    else { $('#scanError').hidden = false; $('#scanError').textContent = 'No QR code could be found in that image.'; }
+  };
+  img.src = URL.createObjectURL(file);
+});
+function showScanResult(text) {
+  $('#scanResult').hidden = false;
+  $('#scanResultText').textContent = text;
+  const isMap = /^https:\/\/www\.google\.com\/maps\?q=/.test(text) || /^geo:/.test(text);
+  $('#openMapScanBtn').hidden = !isMap;
+  $('#openMapScanBtn').onclick = () => {
+    const url = text.startsWith('geo:') ? `https://www.google.com/maps?q=${text.slice(4)}` : text;
+    window.open(url, '_blank', 'noopener');
+  };
+  let meta = `${text.length} characters`;
+  try { JSON.parse(text); meta += ' · valid JSON'; } catch {}
+  $('#scanMeta').textContent = meta;
+}
+$('#copyScanBtn').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('#scanResultText').textContent); toast('Copied.'); }
+  catch { toast('Could not copy — select and copy manually.'); }
+});
+
+/* ===================================================================
+   FORMAT GUIDE
+=================================================================== */
+const FORMAT_INFO = {
+  qr: { what: 'A 2D matrix code readable by any modern phone camera.', bestFor: 'URLs, contact info, Wi‑Fi, payments, structured data', supports: 'Text, numbers, binary data up to ~3KB depending on error correction', rec: 'General-purpose — the default choice for most use cases' },
+  code128: { what: 'A dense, high-reliability 1D barcode.', bestFor: 'Inventory, logistics, internal asset IDs', supports: 'Letters, numbers and most symbols', rec: 'General-purpose asset and shipping labels' },
+  code39: { what: 'An older, widely-compatible 1D barcode.', bestFor: 'Legacy inventory and badge systems', supports: 'Uppercase letters, digits, - . $ / + % space', rec: 'When compatibility with older scanners matters' },
+  ean13: { what: 'The standard retail barcode used worldwide.', bestFor: 'Retail products sold at point of sale', supports: '12–13 digits with a checksum', rec: 'Retail products with a registered GS1 prefix' },
+  ean8: { what: 'A compact version of EAN-13 for small packaging.', bestFor: 'Small retail products', supports: '7–8 digits with a checksum', rec: 'Products too small for a full EAN-13' },
+  upc: { what: 'The standard North American retail barcode.', bestFor: 'Retail products sold in the US/Canada', supports: '11–12 digits with a checksum', rec: 'US/Canada retail products' },
+  upce: { what: 'A compressed UPC for very small packaging.', bestFor: 'Small retail items', supports: '6–8 digits', rec: 'Tight label space in US retail' },
+  itf14: { what: 'Interleaved 2-of-5 for shipping cartons.', bestFor: 'Case and carton-level logistics', supports: 'Exactly 13–14 digits', rec: 'Outer packaging, not consumer-facing' },
+  itf: { what: 'A numeric-only interleaved barcode.', bestFor: 'Warehouse and logistics numeric codes', supports: 'Even-length digit strings', rec: 'Internal logistics tracking' },
+  msi: { what: 'A numeric barcode used mainly on shelves.', bestFor: 'Inventory and warehouse shelf labels', supports: 'Digits only', rec: 'Non-retail inventory' },
+  codabar: { what: 'An older numeric-plus-symbol barcode.', bestFor: 'Libraries, blood banks, older logistics systems', supports: 'Digits, - $ : / . + with A–D start/stop', rec: 'Legacy library/medical systems' },
+  datamatrix: { what: 'A compact, high-density 2D symbol.', bestFor: 'Small parts, electronics, direct part marking', supports: 'Text and binary data in a small footprint', rec: 'Tiny labels where a QR won’t fit' },
+  pdf417: { what: 'A high-capacity stacked 2D barcode.', bestFor: 'IDs, boarding passes, shipping labels', supports: 'Large amounts of structured text', rec: 'Documents needing lots of embedded data' },
+  azteccode: { what: 'A dense 2D symbol with no required quiet zone.', bestFor: 'Transit tickets, boarding passes', supports: 'Text and binary data', rec: 'Small high-density tickets/passes' }
+};
+function renderFormatGuide() {
+  const el = $('#formatGuideList');
+  const order = ['qr', ...SUBTYPES['1d'].map(s => s.value), ...SUBTYPES['2d'].map(s => s.value)];
+  el.innerHTML = order.map(key => {
+    const label = key === 'qr' ? 'QR Code' : (SUBTYPES['1d'].concat(SUBTYPES['2d']).find(s => s.value === key) || {}).label || key;
+    const info = FORMAT_INFO[key];
+    return `<div class="guideitem">
+      <button class="guideitem__q" type="button">${escapeHtml(label)} <span aria-hidden="true">+</span></button>
+      <div class="guideitem__a"><dl>
+        <dt>What it is</dt><dd style="margin:0">${escapeHtml(info.what)}</dd>
+        <dt>Best for</dt><dd style="margin:0">${escapeHtml(info.bestFor)}</dd>
+        <dt>Supports</dt><dd style="margin:0">${escapeHtml(info.supports)}</dd>
+        <dt>Recommended for</dt><dd style="margin:0">${escapeHtml(info.rec)}</dd>
+      </dl></div></div>`;
+  }).join('');
+  $$('.guideitem__q', el).forEach(btn => btn.addEventListener('click', () => btn.closest('.guideitem').classList.toggle('is-open')));
+}
+
+/* ===================================================================
+   INIT
+=================================================================== */
+function init() {
+  populateSubtypeSelect();
+  $('#qrModeSelect').value = state.qrMode;
+  renderDataForm();
+  renderFormatGuide();
+  renderHistoryList();
+  scheduleUpdate();
+}
+init();
+
+</script>
+<!-- ahp-shell --><script src="../../data/tools.js"></script><script src="../../assets/js/hub-shell.js"></script><!-- /ahp-shell -->
+</body>
+</html>

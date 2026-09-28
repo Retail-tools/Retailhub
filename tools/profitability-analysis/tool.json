@@ -1,0 +1,32 @@
+{
+  "id": "profitability-analysis",
+  "order": 6,
+  "name": "Profitability Analysis",
+  "description": "Analyse profitability reports and see margin trends at a glance.",
+  "category": "finance",
+  "icon": "coins",
+  "version": "1.0",
+  "featured": true,
+  "popularity": 78,
+  "tags": [
+    "margin",
+    "profit",
+    "trend",
+    "analysis"
+  ],
+  "capabilities": [
+    "Margin trends",
+    "Profitability breakdown"
+  ],
+  "bestFor": [
+    "Reviewing store or client profitability",
+    "Decision support"
+  ],
+  "stages": [
+    "analyze",
+    "decide"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "status": "active"
+}

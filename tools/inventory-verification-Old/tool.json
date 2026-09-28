@@ -1,0 +1,28 @@
+{
+  "id": "inventory-verification-legacy",
+  "order": 9,
+  "name": "Inventory Verification (Legacy)",
+  "description": "The original inventory verification tool, kept for reference and older audit files.",
+  "category": "inventory",
+  "icon": "archive",
+  "version": "1.0",
+  "popularity": 30,
+  "tags": [
+    "legacy",
+    "old",
+    "inventory",
+    "archive"
+  ],
+  "capabilities": [
+    "Original workflow",
+    "Works with older audit files"
+  ],
+  "bestFor": [
+    "Older audit files",
+    "Comparing against the new version"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "featured": false,
+  "status": "active"
+}

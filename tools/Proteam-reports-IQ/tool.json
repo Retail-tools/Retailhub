@@ -1,0 +1,36 @@
+{
+  "id": "reportiq",
+  "order": 5,
+  "name": "ProTEAM ReportIQ",
+  "description": "Turn a hospital stock-audit Excel file into a branded dashboard and a polished PPT report.",
+  "category": "reporting",
+  "icon": "report",
+  "version": "1.0",
+  "featured": true,
+  "popularity": 88,
+  "tags": [
+    "reportiq",
+    "hospital",
+    "excel",
+    "ppt",
+    "dashboard",
+    "proteam",
+    "healthcare"
+  ],
+  "capabilities": [
+    "Excel to dashboard",
+    "Branded PPT export",
+    "Healthcare audit layout"
+  ],
+  "bestFor": [
+    "Hospital stock audit reports",
+    "Management presentations"
+  ],
+  "stages": [
+    "report",
+    "decide"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "status": "active"
+}

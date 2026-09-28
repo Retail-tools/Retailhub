@@ -1,0 +1,18 @@
+{
+  "id": "my-new-tool",
+  "name": "Your Tool Name",
+  "description": "One or two sentences describing what this tool does.",
+  "category": "utilities",
+  "icon": "wrench",
+  "version": "1.0",
+  "status": "active",
+  "featured": false,
+  "badge": "",
+  "popularity": 50,
+  "tags": [],
+  "capabilities": [],
+  "bestFor": [],
+  "stages": [],
+  "createdDate": "2026-01-01",
+  "updatedDate": "2026-01-01"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "travel-planner",
+  "order": 10,
+  "name": "Travel Planner",
+  "description": "Plan outstation audit travel: routes, stops and schedule in one place.",
+  "category": "operations",
+  "icon": "route",
+  "version": "1.0",
+  "popularity": 60,
+  "tags": [
+    "travel",
+    "route",
+    "field",
+    "schedule",
+    "trip"
+  ],
+  "capabilities": [
+    "Route and stop planning",
+    "Schedule view"
+  ],
+  "bestFor": [
+    "Field audit trips",
+    "Multi-city audit schedules"
+  ],
+  "stages": [
+    "prepare"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "featured": false,
+  "status": "active"
+}

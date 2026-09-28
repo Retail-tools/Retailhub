@@ -1,0 +1,36 @@
+{
+  "id": "retailiq",
+  "order": 4,
+  "name": "RetailIQ",
+  "description": "Retail audit intelligence: turn a store stock-audit Excel file into a branded dashboard and PPT report.",
+  "category": "analytics",
+  "icon": "store",
+  "version": "1.0",
+  "featured": true,
+  "popularity": 90,
+  "tags": [
+    "retailiq",
+    "audit intelligence",
+    "excel",
+    "dashboard",
+    "ppt",
+    "retail",
+    "proteam"
+  ],
+  "capabilities": [
+    "Excel to dashboard",
+    "Branded PPT export",
+    "Store-level insights"
+  ],
+  "bestFor": [
+    "Retail store audit reporting",
+    "Client presentations"
+  ],
+  "stages": [
+    "analyze",
+    "report"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "status": "active"
+}

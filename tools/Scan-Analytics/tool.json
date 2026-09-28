@@ -1,0 +1,38 @@
+{
+  "id": "scan-analytics",
+  "order": 11,
+  "name": "Scan Analytics",
+  "description": "Duplicate scan and pattern detection for audit scan files.",
+  "category": "audit",
+  "icon": "scan",
+  "version": "1.0",
+  "featured": true,
+  "badge": "new",
+  "popularity": 92,
+  "tags": [
+    "scan",
+    "duplicate",
+    "anomaly",
+    "pattern",
+    "exception"
+  ],
+  "capabilities": [
+    "Duplicate scans",
+    "Suspicious location patterns",
+    "Quantity anomalies",
+    "Repeated barcode scans"
+  ],
+  "bestFor": [
+    "Duplicate scans",
+    "Suspicious location patterns",
+    "Quantity anomalies",
+    "Audit exception investigation"
+  ],
+  "stages": [
+    "scan",
+    "analyze"
+  ],
+  "createdDate": "2026-09-27",
+  "updatedDate": "2026-09-27",
+  "status": "active"
+}

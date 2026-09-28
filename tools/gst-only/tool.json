@@ -1,0 +1,27 @@
+{
+  "id": "gst-calculator",
+  "order": 8,
+  "name": "GST Calculator",
+  "description": "Calculate GST for inclusive and exclusive amounts.",
+  "category": "gst",
+  "icon": "percent",
+  "version": "1.0",
+  "popularity": 70,
+  "tags": [
+    "gst",
+    "tax",
+    "inclusive",
+    "exclusive"
+  ],
+  "capabilities": [
+    "Add or remove GST",
+    "Any GST rate"
+  ],
+  "bestFor": [
+    "Quick GST calculations"
+  ],
+  "createdDate": "2026-09-09",
+  "updatedDate": "2026-09-09",
+  "featured": false,
+  "status": "active"
+}
