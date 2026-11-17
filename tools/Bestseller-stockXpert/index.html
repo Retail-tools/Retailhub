@@ -257,9 +257,9 @@ cat:[/categor/,/^cat$/],desc:[/material ?desc/,/^descri/,/item ?desc/,/article ?
 mrp:[/^mrp/,/retail ?price/,/invoice ?mrp/,/^rsp/],qty:[/^qty$/,/quantity/,/^qnty/],val:[/^value$/,/amount/]};
 const SPECS={
  master:{label:'Article Master',req:1,cols:{art:P.art,ean:P.ean,brandName:P.brandName,brand:P.brand,sub:[/sub.?brand/],cat:P.cat,desc:P.desc,season:P.season,mrp:P.mrp},must:['art']},
- book:{label:'Book Stock',req:1,cols:{art:P.art,ean:P.ean,brand:[/^brand/],cat:P.cat,desc:P.desc,season:P.season,mrp:P.mrp,l1000:[/1000/],l7050:[/7050/],l3000:[/3000/],l3700:[/3700/],soh:[/final ?soh/,/^soh/,/total ?stock/,/system ?qty/,/book ?qty/],val:P.val},must:['art','soh']},
+ book:{label:'Book Stock',req:1,cols:{art:P.art,ean:P.ean,brand:[/^brand/],cat:P.cat,desc:P.desc,season:P.season,mrp:P.mrp,l1000:[/1000/],l7050:[/7050/],l3000:[/3000/],l3700:[/3700/],soh:[/final ?soh/,/final ?(system|book|stock)/,/^soh$/,/^soh/,/total ?(soh|stock)/,/^system ?qty/,/^book ?qty/],val:P.val},must:['art','soh']},
  scan:{label:'Scan Data / Physical Stock',req:1,cols:{art:P.art,ean:P.ean,loc:[/location/,/^loc/,/^bin/],brand:[/^brand/],cat:P.cat,desc:P.desc,mrp:P.mrp,qty:[/phys(ical)? ?qty/,/phys(ical)? ?quantity/,/scan(ned)? ?qty/,/^qty$/,/quantity/],val:P.val,rem:[/remark/]},must:['art','qty']},
- neg:{label:'Negative Inventory',req:1,cols:{art:P.art,desc:P.desc,qty:[/neg(ative)? ?qty/,/neg(ative)? ?quantity/,/^qty$/,/quantity/]},must:['art','qty']},
+ neg:{label:'Negative Inventory',req:1,cols:{art:P.art,desc:P.desc,qty:[/neg(ative)? ?qty/,/neg(ative)? ?quantity/,/^qty$/,/quantity/,/^total$/]},must:['art','qty']},
  transit:{label:'In-Transit',req:1,cols:{art:P.art,desc:P.desc,plant:[/plant/],pdoc:[/purchas/,/^po\b/],qty:[/^qty$/,/quantity/],stn:[/stn ?(no|number|#)?/,/^stn$/,/delivery ?(no|number)/],stnDate:[/stn ?date/,/^date$/]},must:['art','qty','stn']},
  omni:{label:'OMNI Returns',req:1,cols:{store:[/receiv(ing)? ?store/,/^store/,/^site/,/^plant/],art:P.art,ean:P.ean,qty:[/qty/,/quantity/,/units?/,/pieces?/,/pcs/],mrp:P.mrp,ret:[/return ?id/,/^return/],order:[/order/],status:[/status/]},must:['art','qty']},
  sales:{label:'Sales Data',req:0,cols:{art:P.art,ean:P.ean,qty:[/sold/,/sale(s)? ?qty/,/^qty$/,/quantity/]},must:['art','qty']}};
@@ -337,8 +337,11 @@ function pick(key,file){if(!file)return;const fr=new FileReader();
  fr.readAsArrayBuffer(file)}
 function mapCols(key,rows){const spec=SPECS[key],lim=Math.min(rows.length,15);let best={score:-1,hdr:0,cols:{}};
  for(let r=0;r<lim;r++){const h=(rows[r]||[]).map(nrm),cols={};let score=0;
-  for(const c in spec.cols){for(let i=0;i<h.length;i++){if(!h[i]||cols[c]!==undefined)continue;
-   if(spec.cols[c].some(rx=>rx.test(h[i]))){cols[c]=i;score++;break}}}
+  const claimed=new Set();
+  for(const c in spec.cols){
+   for(const rx of spec.cols[c]){if(cols[c]!==undefined)break;
+    for(let i=0;i<h.length;i++){if(!h[i]||claimed.has(i))continue;
+     if(rx.test(h[i])){cols[c]=i;claimed.add(i);score++;break}}}}
   if(score>best.score)best={score,hdr:r,cols,headers:rows[r]||[]}}
  return best}
 const cell=(row,i)=>i===undefined||row===undefined?'':row[i];
@@ -349,13 +352,14 @@ function body(key){const r=RAW[key];if(!r)return[];return r.rows.slice(MAP[key].
 
 /* ---------- validation ---------- */
 function validateAll(){const miss=KEYS.filter(k=>SPECS[k].req&&!RAW[k]);
+ const failed=KEYS.filter(k=>RAW[k]&&(SPECS[k].must.some(c=>MAP[k].cols[c]===undefined)||body(k).length===0));
  valBody.innerHTML=`<div class="scroll"><table><thead><tr><th>File</th><th>Status</th><th class="n">Records</th><th>Result</th><th>Columns identified</th></tr></thead><tbody>`+
  KEYS.map(k=>{const r=RAW[k];if(!r)return `<tr><td>${SPECS[k].label}</td><td><span class="tag ${SPECS[k].req?'t-bad':'t-opt'}">${SPECS[k].req?'Missing':'Optional'}</span></td><td class="n">—</td><td>${SPECS[k].req?'Required file not uploaded':'Not uploaded'}</td><td>—</td></tr>`;
   const m=MAP[k],lack=SPECS[k].must.filter(c=>m.cols[c]===undefined),n=body(k).length;
   const ok=!lack.length&&n>0;
   return `<tr><td>${SPECS[k].label}</td><td><span class="tag ${ok?'t-ok':'t-bad'}">${ok?'Valid':'Failed'}</span></td><td class="n">${n.toLocaleString('en-IN')}</td><td>${ok?'Valid':(lack.length?SPECS[k].label+' validation failed. Required column '+lack.map(c=>'"'+c+'"').join(', ')+' could not be identified. Review the sample template.':'No data rows found.')}</td><td>${Object.keys(m.cols).map(c=>c).join(', ')||'—'}</td></tr>`}).join('')+
- `</tbody></table></div><p>${miss.length?'<div class="err">Upload the remaining required files before processing: '+miss.map(k=>SPECS[k].label).join(', ')+'</div>':''}
- <button class="act" onclick="doProcess()" ${miss.length?'disabled':''}>Process audit</button></p>`;
+ `</tbody></table></div><p>${miss.length?'<div class="err">Upload the remaining required files before processing: '+miss.map(k=>SPECS[k].label).join(', ')+'</div>':''}${failed.length?'<div class="err">Fix the file(s) marked Failed above before processing — a required column could not be identified: '+failed.map(k=>SPECS[k].label).join(', ')+'</div>':''}
+ <button class="act" onclick="doProcess()" ${(miss.length||failed.length)?'disabled':''}>Process audit</button></p>`;
  advance(2)}
 
 /* ---------- engine (locked) ---------- */
@@ -613,5 +617,4 @@ const TPL={master:[['Article','EAN','Brand','Brand Name','Sub Brand','Category',
 tplBody.innerHTML=KEYS.map(k=>`<p style="margin:6px 0"><button class="act ghost" onclick="tpl('${k}')">Download Sample ${SPECS[k].label.replace(' / Physical Stock','')}.xlsx</button></p>`).join('');
 function tpl(k){const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(TPL[k].concat([[],['SAMPLE DATA — NOT FOR ACTUAL AUDIT PROCESSING']]));
  XLSX.utils.book_append_sheet(wb,ws,'Sample');XLSX.writeFile(wb,'Sample '+SPECS[k].label.replace(' / Physical Stock','')+'.xlsx')}
-</script><!-- ahp-shell --><script src="../../data/tools.js"></script><script src="../../assets/js/hub-shell.js"></script><!-- /ahp-shell -->
-</body></html>
+</script></body></html>
